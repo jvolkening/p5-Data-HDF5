@@ -1,0 +1,12 @@
+.*
+!/.gitignore
+!/.travis.yml
+/Makefile
+/Makefile.old
+/blib/
+/META.yml
+/META.json
+/MYMETA*
+/pm_to_blib
+*.tar.gz
+releases
