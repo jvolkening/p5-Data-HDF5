@@ -4,7 +4,7 @@
 
 #include "ppport.h"
 #include "hdf5.h"
-#include "H5LT.h"
+#include "hdf5_hl.h"
 
 MODULE = HDFPerl		PACKAGE = HDFPerl
 
@@ -18,7 +18,7 @@ int h5acreate_p(loc_id, name, type_id, space_id, create_plist)
 	int create_plist
 
 	CODE:
-		RETVAL = H5Acreate(loc_id, name, type_id, space_id, create_plist);
+		RETVAL = H5Acreate1(loc_id, name, type_id, space_id, create_plist);
 	OUTPUT:	
 		RETVAL
 
@@ -39,7 +39,7 @@ int h5awrite_string_p(loc_id, name, buffer)
 		attr_type = H5Tcopy(H5T_C_S1);
 		H5Tset_size(attr_type, string_size);
 		H5Tset_strpad(attr_type, H5T_STR_NULLTERM);
-		attr_id= H5Acreate(loc_id, name, attr_type, attr_space, H5P_DEFAULT);
+		attr_id= H5Acreate1(loc_id, name, attr_type, attr_space, H5P_DEFAULT);
 		H5Awrite(attr_id, attr_type, buffer);
 		RETVAL = H5Aclose(attr_id);
 	OUTPUT:	
@@ -199,7 +199,7 @@ int h5gcreate_p(loc, name, hint)
 	int hint
 
 	CODE:
-		RETVAL = H5Gcreate(loc, name, hint);
+		RETVAL = H5Gcreate1(loc, name, hint);
 	OUTPUT:	
 		RETVAL
 
@@ -208,7 +208,7 @@ int h5gopen_p(id, name)
 	char *name
 
 	CODE:
-		RETVAL = H5Gopen(id, name);
+		RETVAL = H5Gopen1(id, name);
 	OUTPUT:
 		RETVAL
 
@@ -380,7 +380,7 @@ int h5pget_dataset_xfer_p()
 
 int h5pget_mount_p()
 	CODE:
-		RETVAL = H5P_MOUNT;
+		RETVAL = H5P_FILE_MOUNT;
 	OUTPUT:	
 		RETVAL
 
@@ -409,7 +409,7 @@ int h5dcreate_p(loc, name, dtype, sid, plist)
 	int plist;
 
 	CODE:
-		RETVAL = H5Dcreate(loc, name, dtype, sid, plist);
+		RETVAL = H5Dcreate1(loc, name, dtype, sid, plist);
 	OUTPUT:
 		RETVAL
 		
@@ -418,7 +418,7 @@ int h5dopen_p(loc_id, name)
 	char *name
 
 	CODE:
-		RETVAL = H5Dopen(loc_id, name);
+		RETVAL = H5Dopen1(loc_id, name);
 	OUTPUT:
 		RETVAL
 
