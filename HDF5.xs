@@ -5,8 +5,13 @@
 #include "ppport.h"
 #include "hdf5.h"
 #include "hdf5_hl.h"
+#include "const-c.inc"
 
-MODULE = HDFPerl		PACKAGE = HDFPerl
+MODULE = Data::HDF5     PACKAGE = Data::HDF5
+
+PROTOTYPES: ENABLE
+
+INCLUDE: const-xs.inc
 
 ########### H5A API
 
@@ -239,11 +244,26 @@ SV * h5gget_num_objs_p(loc)
 
 	CODE:
                 number = (hsize_t *)malloc(sizeof(hsize_t));
-		H5Gget_num_objs(loc, number);
+                H5Gget_num_objs(loc, number);
                 data = newSViv(*number);
                 RETVAL = data;
                 free(number);
 	OUTPUT:
+                RETVAL
+
+SV * h5gget_objtype_by_idx_p(loc, index)
+        int loc
+        int index
+
+        INIT:
+                SV *data;
+                int type;
+
+        CODE:
+                type = H5Gget_objtype_by_idx(loc, index);
+                data = newSViv(type);
+                RETVAL = data;
+        OUTPUT:
                 RETVAL
 
 SV * h5gget_objname_by_idx_p(loc, index, size)
@@ -354,36 +374,6 @@ int h5pset_layout_p(plist, layout)
 	OUTPUT:	
 		RETVAL
 
-int h5pget_file_create_p()
-	CODE:
-		RETVAL = H5P_FILE_CREATE;
-	OUTPUT:	
-		RETVAL
-
-int h5pget_file_access_p()
-	CODE:
-		RETVAL = H5P_FILE_ACCESS;
-	OUTPUT:	
-		RETVAL
-
-int h5pget_dataset_create_p()
-	CODE:
-		RETVAL = H5P_DATASET_CREATE;
-	OUTPUT:	
-		RETVAL
-
-int h5pget_dataset_xfer_p()
-	CODE:
-		RETVAL = H5P_DATASET_XFER;
-	OUTPUT:	
-		RETVAL
-
-int h5pget_mount_p()
-	CODE:
-		RETVAL = H5P_FILE_MOUNT;
-	OUTPUT:	
-		RETVAL
-
 int h5pset_fill_time_p(plist, alloc_time)
         int plist
         int alloc_time
@@ -394,12 +384,6 @@ int h5pset_fill_time_p(plist, alloc_time)
                 RETVAL
 
 ################## H5D API
-
-int h5dget_fill_time_alloc_p()
-        CODE:
-                RETVAL = H5D_FILL_TIME_ALLOC;
-        OUTPUT:
-                RETVAL
 
 int h5dcreate_p(loc, name, dtype, sid, plist)
 	int loc;
@@ -443,6 +427,14 @@ int h5dget_type_p(id)
 
 	CODE:
 		RETVAL = H5Dget_type(id);	
+	OUTPUT:
+		RETVAL
+
+int h5tget_class_p(id)
+	int id;
+
+	CODE:
+		RETVAL = H5Tget_class(id);	
 	OUTPUT:
 		RETVAL
 
@@ -1023,36 +1015,6 @@ int h5tinsert_p(type, name, offset, field)
 	OUTPUT:
 		RETVAL
 
-int h5tget_native_int_p()
-	CODE:
-		RETVAL = H5T_NATIVE_INT;
-	OUTPUT:
-		RETVAL
-
-int h5tget_native_double_p()
-	CODE:
-		RETVAL = H5T_NATIVE_FLOAT;
-	OUTPUT:
-		RETVAL
-
-int h5tget_native_float_p()
-	CODE:
-		RETVAL = H5T_NATIVE_FLOAT;
-	OUTPUT:
-		RETVAL
-
-size_t h5tget_variable_p()
-	CODE:
-		RETVAL = H5T_VARIABLE;
-	OUTPUT:
-		RETVAL
-
-int h5tget_native_char_p()
-	CODE:
-		RETVAL = H5T_NATIVE_CHAR;
-	OUTPUT:
-		RETVAL
-
 int h5tget_size_p(tid)
 	int tid	
 
@@ -1086,78 +1048,5 @@ int h5tequal_p(id1, id2)
 	OUTPUT:	
 		RETVAL
 		
-# END OF DATATYPES
 
-# GETTING VALUES OF CONSTANTS		
-int h5fget_ftrunc_p()
-	CODE:
-		RETVAL = H5F_ACC_TRUNC;
-	OUTPUT:
-		RETVAL
-
-int h5pget_pdefault_p()
-	CODE:
-		RETVAL = H5P_DEFAULT;
-	OUTPUT:
-		RETVAL
-
-int h5fget_frdrw_p()
-	CODE:
-		RETVAL = H5F_ACC_RDWR;
-	OUTPUT:
-		RETVAL
-
-int h5fget_frdonly_p()
-	CODE:
-		RETVAL = H5F_ACC_RDONLY;
-	OUTPUT:
-		RETVAL
-
-int h5fget_scope_global()
-	CODE:
-		RETVAL = H5F_SCOPE_GLOBAL;
-	OUTPUT:
-		RETVAL
-
-int h5fget_scope_local()
-	CODE:
-		RETVAL = H5F_SCOPE_LOCAL;
-	OUTPUT:
-		RETVAL
-
-int h5dget_compact_p()
-	CODE:
-		RETVAL = H5D_COMPACT;
-	OUTPUT:
-		RETVAL
-
-int h5dget_contiguous_p()
-	CODE:
-		RETVAL = H5D_CONTIGUOUS;
-	OUTPUT:
-		RETVAL
-
-int h5dget_chunked_p()
-	CODE:
-		RETVAL = H5D_CHUNKED;
-	OUTPUT:
-		RETVAL
-
-size_t h5sget_unlimited_p()
-        CODE:
-                RETVAL = H5S_UNLIMITED;
-        OUTPUT:
-                RETVAL
-
-int h5sget_select_set_p()
-        CODE:
-                RETVAL = H5S_SELECT_SET;
-        OUTPUT:
-                RETVAL
-
-int h5tget_c_s1_p()
-	CODE:
-		RETVAL = H5T_C_S1;
-	OUTPUT:
-		RETVAL
 
