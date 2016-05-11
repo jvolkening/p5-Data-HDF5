@@ -1,0 +1,6 @@
+Revision history for Perl extension HDFPerl.
+
+0.01  Sat May  6 18:02:32 2006
+	- original version; created by h2xs 1.22 with options
+		-A -n HDFPerl
+
