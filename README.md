@@ -3,6 +3,16 @@ Data::HDF5
 
 Bindings to the HDF5 data storage library
 
+WARNING
+-------
+
+This module is currently a work in progress aiming to update and clean up the
+HDFPerl demo package produced by the HDF Group for eventual release to CPAN.
+The current status is UNSTABLE!
+
+DO NOT USE this module in production code (or be willing to accept the
+conseuqences)!
+
 INSTALLATION
 ------------
 
