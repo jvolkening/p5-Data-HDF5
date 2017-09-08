@@ -83,10 +83,7 @@ WriteMakefile(
     },
     PREREQ_PM     => {},
 
-    # These are Debian-specific locations.
-    # Hopefully in other distros libs will be in standard locations
-    LIBS => [ qw{-L/usr/lib/x86_64-linux-gnu/hdf5/serial/
-        -lhdf5 -L/usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5_hl.a'} ],
+    LIBS => '-lhdf5 -lhdf5_hl',
     INC  => '-I. -I/usr/include/hdf5/serial',
     META_MERGE => {
         'meta-spec' => { version => 2 },
@@ -99,5 +96,5 @@ WriteMakefile(
         },
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-    clean => { FILES => 'Data-HDF5-*' },
+    clean => { FILES => ['Data-HDF5-*','*.inc'] },
 );
