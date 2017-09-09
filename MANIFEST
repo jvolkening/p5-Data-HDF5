@@ -1,0 +1,11 @@
+Changes
+HDF5.xs
+lib/Data/HDF5.pm
+LICENSE.original
+Makefile.PL
+MANIFEST			This list of files
+ppport.h
+README.md
+t/hdf5.t
+t/test.h5
+typemap

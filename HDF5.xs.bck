@@ -7,6 +7,7 @@
 #include "hdf5_hl.h"
 #include "const-c.inc"
 
+//typedef struct H5G_info_t Data__HDF5__GroupInfo;
 
 MODULE = Data::HDF5     PACKAGE = Data::HDF5
 
@@ -14,186 +15,9 @@ PROTOTYPES: ENABLE
 
 INCLUDE: const-xs.inc
 
-
-#############################################################################
-# H5F API
-#############################################################################
-
-hid_t
-H5Fcreate(name, flags, fcpl_id, fapl_id)
-	char *name
-	unsigned int flags
-	hid_t fcpl_id
-	hid_t fapl_id
-
-#---------------------------------------------------------------------------#
-
-hid_t
-H5Fopen(name, flags, fapl_id)
-	char *name
-	unsigned int flags
-	hid_t fapl_id
-
-#---------------------------------------------------------------------------#
-
-herr_t
-H5Fclose(file_id)
-	hid_t file_id
-
-#---------------------------------------------------------------------------#
-		
-herr_t
-H5Fflush(file_id, scope)
-	hid_t file_id
-	H5F_scope_t scope
-
-
-#############################################################################
-# H5G API
-#############################################################################
-
-hid_t
-H5Gcreate(loc_id, name, lcpl_id, gcpl_id, gapl_id)
-	hid_t loc_id
-	char *name
-	hid_t lcpl_id
-    hid_t gcpl_id
-    hid_t gapl_id
-
-	CODE:
-		RETVAL = H5Gcreate2(loc_id, name, lcpl_id, gcpl_id, gapl_id);
-	OUTPUT:	
-		RETVAL
-
-#----------------------------------------------------------------------------#
-
-hid_t
-H5Gopen(loc_id, name, gapl_id)
-	hid_t loc_id
-	char *name
-    hid_t gapl_id
-
-	CODE:
-		RETVAL = H5Gopen2(loc_id, name, gapl_id);
-	OUTPUT:
-		RETVAL
-
-#----------------------------------------------------------------------------#
-
-herr_t
-H5Gclose(group_id)
-	hid_t group_id
-
-#----------------------------------------------------------------------------#
-
-hid_t
-H5Gget_create_plist(group_id)
-	hid_t group_id
-
-#----------------------------------------------------------------------------#
-
-SV *
-H5Gget_info(group_id)
-    hid_t group_id
-
-    PREINIT:
-        herr_t ret;
-        HV *info_hash;
-        H5G_info_t *info;
-    CODE:
-        info = (H5G_info_t *)malloc(sizeof(H5G_info_t));
-        ret  = H5Gget_info(group_id, info);
-        if (ret < 0) {
-            RETVAL = newSViv(ret);
-        }
-        else {
-            info_hash = (HV *) sv_2mortal((SV *) newHV ());
-            hv_store( info_hash, "nlinks",        6, newSVuv( info->nlinks ),       0 );
-            hv_store( info_hash, "max_corder",   10, newSViv( info->max_corder ),   0 );
-            hv_store( info_hash, "storage_type", 12, newSViv( info->storage_type ), 0 );
-            hv_store( info_hash, "mounted",       7, newSVuv( info->mounted ),      0 );
-            RETVAL = newRV((SV *)info_hash);
-        }
-        free(info);
-    OUTPUT:
-        RETVAL
-
-#----------------------------------------------------------------------------#
-
-SV *
-H5Gget_info_by_name(loc_id, group_name, lapl_id)
-    hid_t loc_id
-    char *group_name
-    hid_t lapl_id
-
-    PREINIT:
-        herr_t ret;
-        HV *info_hash;
-        H5G_info_t *info;
-    CODE:
-        info = (H5G_info_t *)malloc(sizeof(H5G_info_t));
-        ret = H5Gget_info_by_name(loc_id, group_name, info, lapl_id);
-        if (ret < 0) {
-            RETVAL = newSViv(ret);
-        }
-        else {
-            info_hash = (HV *) sv_2mortal((SV *) newHV ());
-            hv_store( info_hash, "nlinks",        6, newSVuv( info->nlinks ),       0 );
-            hv_store( info_hash, "max_corder",   10, newSViv( info->max_corder ),   0 );
-            hv_store( info_hash, "storage_type", 12, newSViv( info->storage_type ), 0 );
-            hv_store( info_hash, "mounted",       7, newSVuv( info->mounted ),      0 );
-            RETVAL = newRV((SV *)info_hash);
-        }
-        free(info);
-    OUTPUT:
-        RETVAL
-
-#----------------------------------------------------------------------------#
-
-SV *
-H5Gget_info_by_idx(loc_id, group_name, index_type, order, n, lapl_id)
-    hid_t loc_id
-    char *group_name
-    H5_index_t index_type
-    H5_iter_order_t order
-    hsize_t n
-    hid_t lapl_id
-
-    PREINIT:
-        herr_t ret;
-        HV *info_hash;
-        H5G_info_t *info;
-    CODE:
-        info = (H5G_info_t *)malloc(sizeof(H5G_info_t));
-        ret = H5Gget_info_by_idx(
-            loc_id,
-            group_name,
-            index_type,
-            order,
-            n,
-            info,
-            lapl_id
-        );
-        if (ret < 0) {
-            RETVAL = newSViv(ret);
-        }
-        else {
-            info_hash = (HV *) sv_2mortal((SV *) newHV ());
-            hv_store( info_hash, "nlinks",        6, newSVuv( info->nlinks ),       0 );
-            hv_store( info_hash, "max_corder",   10, newSViv( info->max_corder ),   0 );
-            hv_store( info_hash, "storage_type", 12, newSViv( info->storage_type ), 0 );
-            hv_store( info_hash, "mounted",       7, newSVuv( info->mounted ),      0 );
-            RETVAL = newRV((SV *)info_hash);
-        }
-        free(info);
-    OUTPUT:
-        RETVAL
-
-#TODO: Continue refactoring here
-
-#---------------------------------------------------------------------------#
-# H5A API
-#---------------------------------------------------------------------------#
+ #---------------------------------------------------------------------------#
+ # H5A API
+ #---------------------------------------------------------------------------#
 
 hid_t h5acreate_p(loc_id, name, type_id, space_id, acpl_id, aapl_id)
 	hid_t loc_id
@@ -337,6 +161,173 @@ int h5aget_num_attrs_p(attr_id)
 		RETVAL = H5Aget_num_attrs(attr_id);
 	OUTPUT:	
 		RETVAL
+
+########## H5F API
+
+int h5fcreate_p(x, flag, create_id, access_id)
+	char *x
+	int flag
+	int create_id
+	int access_id
+	CODE:
+		RETVAL = H5Fcreate(x, flag, create_id, access_id);
+	OUTPUT:
+		RETVAL
+
+hid_t h5fopen_p(name, flag, access_id)
+	char *name
+	int flag
+	int access_id
+
+	CODE:
+		RETVAL = H5Fopen(name, flag, access_id);
+	OUTPUT:
+		RETVAL	
+
+int h5fclose_p(id)
+	int id
+
+	CODE:
+		RETVAL = H5Fclose(id);
+	OUTPUT:
+		RETVAL
+		
+int h5fflush_p(id, scope)
+	int id
+	int scope
+
+	CODE:
+		RETVAL = H5Fflush(id, scope);
+	OUTPUT:
+		RETVAL
+
+
+ #---------------------------------------------------------------------------#
+ # H5G API
+ #---------------------------------------------------------------------------#
+
+hid_t h5gcreate_p(loc_id, name, lcpl_id, gcpl_id, gapl_id)
+	hid_t loc_id
+	char *name
+	hid_t lcpl_id
+    hid_t gcpl_id
+    hid_t gapl_id
+
+	CODE:
+		RETVAL = H5Gcreate2(loc_id, name, lcpl_id, gcpl_id, gapl_id);
+	OUTPUT:	
+		RETVAL
+
+
+hid_t h5gopen_p(loc_id, name, gapl_id)
+	hid_t loc_id
+	char *name
+    hid_t gapl_id
+
+	CODE:
+		RETVAL = H5Gopen2(loc_id, name, gapl_id);
+	OUTPUT:
+		RETVAL
+
+
+herr_t h5gclose_p(group_id)
+	int group_id
+
+	CODE:
+		RETVAL = H5Gclose(group_id);
+	OUTPUT:
+		RETVAL
+
+
+ # herr_t h5gget_info_by_name_p()
+ # herr_t h5gget_info_by_idx_p()
+
+hid_t h5gget_create_plist_p(group_id)
+	hid_t group_id
+
+	CODE:
+		RETVAL = H5Gget_create_plist(group_id);
+	OUTPUT:
+		RETVAL
+
+
+SV * h5gget_num_objs_p(loc)
+	hid_t loc
+
+        INIT:
+                SV *data;
+                hsize_t *number;
+
+	CODE:
+                number = (hsize_t *)malloc(sizeof(hsize_t));
+                H5Gget_num_objs(loc, number);
+                data = newSViv(*number);
+                RETVAL = data;
+                free(number);
+	OUTPUT:
+                RETVAL
+
+SV * h5gget_objtype_by_idx_p(loc, index)
+        hid_t loc
+        int index
+
+        INIT:
+                SV *data;
+                int type;
+
+        CODE:
+                type = H5Gget_objtype_by_idx(loc, index);
+                data = newSViv(type);
+                RETVAL = data;
+        OUTPUT:
+                RETVAL
+
+SV * h5gget_objname_by_idx_p(loc, index, size)
+        hid_t loc
+        int index
+        int size
+
+        INIT:
+                SV *data;
+                char *name;
+
+        CODE:
+                name = (char *)malloc(sizeof(char)*size);
+                H5Gget_objname_by_idx(loc, index, name, size);
+                data = newSVpv(name, 0);
+                RETVAL = data;
+                free(name);
+        OUTPUT:
+                RETVAL
+
+#Data::HDF5::GroupInfo * h5gget_info_p(group_id)
+        #hid_t group_id
+#
+        #INIT:
+            #Data__HDF5__GroupInfo *info;
+#
+        #CODE:
+            #info = (Data__HDF5__GroupInfo *)malloc(sizeof(Data__HDF5__GroupInfo));
+            #H5Gget_info(group_id, info);
+            #RETVAL = info;
+        #OUTPUT:
+            #RETVAL
+
+SV * h5gget_info_p(group_id)
+        hid_t group_id
+
+        PREINIT:
+            herr_t ret;
+            HV *info_hash;
+            H5G_info_t *info;
+        CODE:
+            info = (H5G_info_t *)malloc(sizeof(H5G_info_t));
+            ret = H5Gget_info(group_id, info);
+            info_hash = newHV();
+            hv_store( info_hash, "nlinks", 6, newSVuv( info->nlinks ), 0 );
+            RETVAL = sv_2mortal((SV*)newRV_noinc((SV *)info_hash));
+        OUTPUT:
+            RETVAL
 
 ############### H5P API
 
@@ -1076,107 +1067,38 @@ int h5tequal_p(id1, id2)
 		RETVAL = H5Tequal(id1, id2);
 	OUTPUT:	
 		RETVAL
+		
+MODULE = Data::HDF5     PACKAGE = Data::HDF5::GroupInfoPtr
 
- #---------------------------------------------------------------------------#
- # H5L API
- #---------------------------------------------------------------------------#
-
-SV * h5lget_name_by_idx_p(loc_id, group_name, index_field, order, n, lapl_id)
-    hid_t loc_id
-    char *group_name
-    H5_index_t index_field
-    H5_iter_order_t order
-    hsize_t n
-    hid_t lapl_id
-
-    INIT:
-        char *name;
-        SV *data;
-        //size_t size;
-
+void DESTROY(foo)
+    Data::HDF5::GroupInfo *foo
     CODE:
-            //size = (size_t *)malloc(sizeof(size_t));
-            size_t size = H5Lget_name_by_idx(
-                loc_id,
-                group_name,
-                index_field,
-                order,
-                n,
-                NULL,
-                0,
-                lapl_id
-            ) + 1;
-            name = (char *)malloc(sizeof(char)*size);
-            H5Lget_name_by_idx(
-                loc_id,
-                group_name,
-                index_field,
-                order,
-                n,
-                name,
-                size,
-                lapl_id
-            );
+        free(foo);
 
-            data = newSVpv(name, 0);
-            RETVAL = data;
-            free(name);
-    OUTPUT:
-            RETVAL
+hsize_t nlinks(foo)
+    Data::HDF5::GroupInfo *foo
+CODE:
+    RETVAL = foo->nlinks;
+OUTPUT:
+    RETVAL
 
- #---------------------------------------------------------------------------#
- # H5O API
- #---------------------------------------------------------------------------#
+int storage_type(foo)
+    Data::HDF5::GroupInfo *foo
+CODE:
+    RETVAL = foo->storage_type;
+OUTPUT:
+    RETVAL
 
-SV * h5oget_info_p(object_id)
-        hid_t object_id
+int64_t max_corder(foo)
+    Data::HDF5::GroupInfo *foo
+CODE:
+    RETVAL = foo->max_corder;
+OUTPUT:
+    RETVAL
 
-        PREINIT:
-            herr_t ret;
-            HV *info_hash;
-            HV *hdr_hash;
-            HV *space_hash;
-            HV *mesg_hash;
-            H5O_info_t *info;
-
-        CODE:
-            info = (H5O_info_t *)malloc(sizeof(H5O_info_t));
-            ret = H5Oget_info(object_id, info);
-
-            H5O_hdr_info_t hdr = info->hdr;
-
-            info_hash  = (HV *) sv_2mortal((SV *) newHV ());
-            hdr_hash   = (HV *) sv_2mortal((SV *) newHV ());
-            space_hash = (HV *) sv_2mortal((SV *) newHV ());
-            mesg_hash  = (HV *) sv_2mortal((SV *) newHV ());
-
-            hv_store( space_hash, "total", 5, newSVuv( hdr.space.total ), 0 );
-            hv_store( space_hash, "meta",  4, newSVuv( hdr.space.meta  ), 0 );
-            hv_store( space_hash, "mesg",  4, newSVuv( hdr.space.mesg  ), 0 );
-            hv_store( space_hash, "free",  4, newSVuv( hdr.space.free  ), 0 );
-
-            hv_store( mesg_hash, "present", 7, newSVuv( hdr.mesg.present ), 0 );
-            hv_store( mesg_hash, "shared",  6, newSVuv( hdr.mesg.shared  ), 0 );
-
-            hv_store( hdr_hash, "version", 7, newSVuv( hdr.version ), 0 );
-            hv_store( hdr_hash, "nmesgs",  6, newSVuv( hdr.nmesgs ),  0 );
-            hv_store( hdr_hash, "nchunks", 7, newSVuv( hdr.nchunks ), 0 );
-            hv_store( hdr_hash, "flags",   5, newSVuv( hdr.flags ),   0 );
-            hv_store( hdr_hash, "space",   5, newRV((SV *)space_hash), 0 );
-            hv_store( hdr_hash, "mesg",    4, newRV((SV *)mesg_hash),  0 );
-
-
-            hv_store( info_hash, "fileno", 6, newSVuv( info->fileno ), 0 );
-            hv_store( info_hash, "addr",   4, newSVuv( info->addr ),   0 );
-            hv_store( info_hash, "type",   4, newSViv( info->type ),   0 );
-            hv_store( info_hash, "rc",     2, newSVuv( info->rc ),     0 );
-            hv_store( info_hash, "atime",  5, newSViv( info->atime ),  0 );
-            hv_store( info_hash, "mtime",  5, newSViv( info->mtime ),  0 );
-            hv_store( info_hash, "ctime",  5, newSViv( info->ctime ),  0 );
-            hv_store( info_hash, "btime",  5, newSViv( info->btime ),  0 );
-            hv_store( info_hash, "hdr",    3, newRV((SV *)hdr_hash),   0 );
-
-            RETVAL = newRV((SV *)info_hash);
-            free(info);
-        OUTPUT:
-            RETVAL
+int mounted(foo)
+    Data::HDF5::GroupInfo *foo
+CODE:
+    RETVAL = foo->mounted;
+OUTPUT:
+    RETVAL

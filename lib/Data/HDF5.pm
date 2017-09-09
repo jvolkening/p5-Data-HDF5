@@ -10,6 +10,23 @@ require Exporter;
 our @ISA = qw(Exporter);
 
 my @functions = qw/
+
+    H5Fcreate
+    H5Fopen
+    H5Fclose
+    H5Fflush
+
+    H5Gcreate
+    H5Gopen
+    H5Gclose
+    H5Gget_create_plist
+    H5Gget_info
+    H5Gget_info_by_name
+    H5Gget_info_by_idx
+
+    h5oget_info_p
+    h5lget_name_by_idx_p
+
     h5acreate_p
     h5awrite_string_p
     h5awrite_int8_p
@@ -22,18 +39,7 @@ my @functions = qw/
     h5aget_space_p
     h5aget_type_p
     h5aget_num_attrs_p
-    h5fcreate_p
-    h5fopen_p
-    h5fclose_p
-    h5fflush_p
-    h5gcreate_p
-    h5gopen_p
-    h5gclose_p
-    h5gset_comment_p
-    h5gget_num_objs_p
-    h5gget_objname_by_idx_p
-    h5gget_objtype_by_idx_p
-    h5gget_comment_p
+
     h5pcreate_p
     h5pclose_p
     h5pset_chunk_p
@@ -98,6 +104,23 @@ my @functions = qw/
 
 
 my @constants = qw/
+
+    H5_ITER_UNKNOWN
+    H5_ITER_INC
+    H5_ITER_DEC
+    H5_ITER_NATIVE
+    H5_ITER_N
+
+    H5_INDEX_UNKNOWN
+    H5_INDEX_NAME
+    H5_INDEX_CRT_ORDER
+    H5_INDEX_N
+
+    H5O_TYPE_UNKNOWN
+    H5O_TYPE_GROUP
+    H5O_TYPE_DATASET
+    H5O_TYPE_NAMED_DATATYPE
+    H5O_TYPE_NTYPES
 
     H5T_NATIVE_INT
     H5T_NATIVE_DOUBLE
