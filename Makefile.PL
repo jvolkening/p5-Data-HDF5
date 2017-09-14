@@ -80,6 +80,34 @@ my @enums = qw/
     H5D_CONTIGUOUS
     H5D_CHUNKED
     H5D_NLAYOUTS
+
+    H5T_DIR_DEFAULT
+    H5T_DIR_ASCEND
+    H5T_DIR_DESCEND
+
+    H5T_NO_CLASS
+    H5T_INTEGER
+    H5T_FLOAT
+    H5T_TIME
+    H5T_STRING
+    H5T_BITFIELD
+    H5T_OPAQUE
+    H5T_COMPOUND
+    H5T_REFERENCE
+    H5T_ENUM
+    H5T_VLEN
+    H5T_ARRAY
+    H5T_NCLASSES
+
+    H5T_ORDER_ERROR
+    H5T_ORDER_LE
+    H5T_ORDER_BE
+    H5T_ORDER_VAX
+    H5T_ORDER_MIXED
+    H5T_ORDER_NONE
+
+    H5T_SGN_NONE
+    H5T_SGN_2
 /;
 
 push @names, map { {name => $_, macro => 1} } @enums;

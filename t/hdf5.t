@@ -60,13 +60,13 @@ is( $info3->{nlinks}, 1, "get sub links" );
 my @grps = qw/Analyses Raw UniqueGlobalKey/;
 
 for my $i (0..$info->{nlinks}-1) {
-    my $name = h5lget_name_by_idx_p($root, '.', H5_INDEX_NAME, H5_ITER_INC, $i, H5P_DEFAULT);
+    my $name = H5Lget_name_by_idx($root, '.', H5_INDEX_NAME, H5_ITER_INC, $i, H5P_DEFAULT);
     is( $name, $grps[$i], "get name $i increasing" );
-    $name = h5lget_name_by_idx_p($root, '.', H5_INDEX_NAME, H5_ITER_DEC, $i, H5P_DEFAULT);
+    $name = H5Lget_name_by_idx($root, '.', H5_INDEX_NAME, H5_ITER_DEC, $i, H5P_DEFAULT);
     is( $name, $grps[2-$i], "get name $i decreasing" );
     ok( my $sub = H5Gopen($root, $name, H5P_DEFAULT),
         "open group $i" );
-    ok( my $info = h5oget_info_p($sub),
+    ok( my $info = H5Oget_info($sub),
         "get info for group $i" );
     is( $info->{type}, H5O_TYPE_GROUP,
         "type is GROUP" );
@@ -75,6 +75,35 @@ for my $i (0..$info->{nlinks}-1) {
     ok( H5Gclose($sub) >= 0,
         "close group $i" );
 }
+
+#my $attr = H5Aopen_by_name( $root, 'UniqueGlobalKey/context_tags', 'flowcell', H5P_DEFAULT, H5P_DEFAULT );
+my $g = H5Gopen($file,"/Raw/Reads/Read_1107", H5P_DEFAULT);
+#my $g = H5Gopen($file,"/Analyses/Segmentation_000/Summary/segmentation", H5P_DEFAULT);
+#my $attr = H5Aopen_by_name( $root, '.', 'file_version', H5P_DEFAULT, H5P_DEFAULT );
+say "GRP:", $g;
+my $attr = H5Aopen_by_name( $g, '.', 'duration', H5P_DEFAULT, H5P_DEFAULT );
+say "ATTR:", $attr;
+my $type = H5Aget_type($attr);
+say "TYPE:", $type;
+my $class = H5Tget_class($type);
+say "CLASS:", $class;
+my $native = H5Tget_native_type($type, H5T_DIR_ASCEND);
+say "NATIVE:", $native;
+my $val = H5Aread($attr);
+say Dumper $val;
+#say "VAL:", $val;
+ok( $g >= 0, "open subgroup" );
+my $ds = H5Dopen($g, 'Signal', H5P_DEFAULT);
+ok( $ds >= 0, "open dataset" );
+$type = H5Dget_type($ds);
+say "TYPE:", $type;
+$class = H5Tget_class($type);
+say "CLASS:", $class;
+$native = H5Tget_native_type($type, H5T_DIR_ASCEND);
+say "NATIVE:", $native;
+my $val2 = H5Dread($ds);
+say Dumper $val2;
+say "VAL2:", $val2->[0];
 
 # H5Fclose
 

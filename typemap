@@ -6,5 +6,7 @@ herr_t           T_IV
 int64_t          T_IV
 H5_index_t       T_IV
 H5_iter_order_t  T_IV
+H5T_class_t      T_IV
+H5T_direction_t  T_IV
 H5F_scope_t      T_IV
 haddr_t          T_UV

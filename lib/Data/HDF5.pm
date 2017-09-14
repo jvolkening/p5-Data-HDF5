@@ -24,82 +24,24 @@ my @functions = qw/
     H5Gget_info_by_name
     H5Gget_info_by_idx
 
-    h5oget_info_p
-    h5lget_name_by_idx_p
+    H5Aopen_by_name
+    H5Aget_type
+    H5Aget_name
+    H5Aread
 
-    h5acreate_p
-    h5awrite_string_p
-    h5awrite_int8_p
-    h5aread_int8_p
-    h5aread_p
-    h5aclose_p
-    h5aget_name_p
-    h5aopen_name_p
-    h5aopen_idx_p
-    h5aget_space_p
-    h5aget_type_p
-    h5aget_num_attrs_p
+    H5Dread
+    H5Dopen
+    H5Dclose
+    H5Dget_space
+    H5Dget_type
 
-    h5pcreate_p
-    h5pclose_p
-    h5pset_chunk_p
-    h5pset_deflate_p
-    h5pset_layout_p
-    h5pget_file_create_p
-    h5pget_file_access_p
-    h5pget_dataset_create_p
-    h5pget_dataset_xfer_p
-    h5pget_mount_p
-    h5pset_fill_time_p
-    h5dget_fill_time_alloc_p
-    h5dcreate_p
-    h5dopen_p
-    h5dclose_p
-    h5dget_space_p
-    h5dget_type_p
-    h5dwrite_double_p
-    h5dwrite_float_p
-    h5dwrite_int8_p
-    h5dwrite_int_p
-    h5dwrite_char_p
-    h5dwrite_string_p
-    h5dwrite_vlstring_p
-    h5dread_int8_p
-    h5dread_int_p
-    h5dread_double_p
-    h5dread_string_p
-    h5dread_vlstring_p
-    h5dread_char_p
-    h5dextend_p
-    h5screate_p
-    h5screate_simple_p
-    h5sselect_hyperslab_p
-    h5sget_simple_extent_dims_p
-    h5sclose_p
-    h5tcreate_enum_p
-    h5tenum_insert_char_p
-    h5tcreate_string_p
-    h5tcreate_compound_p
-    h5tinsert_p
-    h5tget_native_int_p
-    h5tget_native_double_p
-    h5tget_native_float_p
-    h5tget_variable_p
-    h5tget_native_char_p
-    h5tget_size_p
-    h5tclose_p
-    h5tequal_p
-    h5fget_ftrunc_p
-    h5pget_pdefault_p
-    h5fget_frdrw_p
-    h5fget_frdonly_p
-    h5dget_compact_p
-    h5dget_contiguous_p
-    h5dget_chunked_p
-    h5sget_unlimited_p
-    h5sget_select_set_p
-    h5tget_c_s1_p
-    h5tget_class_p
+    H5Tget_class
+    H5Tget_native_type
+    H5Tclose
+
+    H5Lget_name_by_idx
+
+    H5Oget_info
 /;
 
 
@@ -180,6 +122,34 @@ my @constants = qw/
     H5D_CONTIGUOUS
     H5D_CHUNKED
     H5D_NLAYOUTS
+
+    H5T_DIR_DEFAULT
+    H5T_DIR_ASCEND
+    H5T_DIR_DESCEND
+
+    H5T_NO_CLASS
+    H5T_INTEGER
+    H5T_FLOAT
+    H5T_TIME
+    H5T_STRING
+    H5T_BITFIELD
+    H5T_OPAQUE
+    H5T_COMPOUND
+    H5T_REFERENCE
+    H5T_ENUM
+    H5T_VLEN
+    H5T_ARRAY
+    H5T_NCLASSES
+
+    H5T_ORDER_ERROR
+    H5T_ORDER_LE
+    H5T_ORDER_BE
+    H5T_ORDER_VAX
+    H5T_ORDER_MIXED
+    H5T_ORDER_NONE
+
+    H5T_SGN_NONE
+    H5T_SGN_2
 /;
 
 our %EXPORT_TAGS = (
