@@ -10,8 +10,6 @@ perl:
 os:
   - linux
 before_install:
-  - "cpanm Module::Build::WithXSpp"
-  - "cpanm ExtUtils::Typemaps::ObjectMap"
   - "cpanm Devel::Cover"
   - eval $(curl https://travis-perl.github.io/init) --auto
 compiler:
@@ -25,3 +23,8 @@ addons:
     packages:
     - gcc-4.8
     - libhdf5-dev
+matrix:
+  include:
+    - perl: 5.20
+      env: COVERAGE=1   # enables coverage+coveralls reporting
+
