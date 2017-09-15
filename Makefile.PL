@@ -142,5 +142,12 @@ WriteMakefile(
         },
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-    clean => { FILES => ['Data-HDF5-*','*.inc'] },
+    clean => { FILES => [
+        'Data-HDF5-*',
+        '*.inc',
+        '*.gcov',
+        '*.gcno',
+        '*.gcda',
+        'cover_db',
+    ] },
 );
