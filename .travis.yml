@@ -25,4 +25,4 @@ addons:
 matrix:
   include:
     - perl: "5.22"
-      after_script: perl Makefile.PL && make && cover --test --report coveralls
+      after_script: perl Makefile.PL && make && cover -test -ignore_re '.*inline.h' -ignore_re 'const-.*'
