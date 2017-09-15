@@ -278,6 +278,8 @@ H5Aread(attr_id)
         hid_t type;
         hid_t native;
         H5T_class_t class;
+        H5S_sel_type sel_type;
+        int n_dims;
     CODE:
         type = H5Aget_type(attr_id);
         class = H5Tget_class(type);
@@ -285,8 +287,17 @@ H5Aread(attr_id)
 
         data = (AV *)sv_2mortal((SV *)newAV());
         attr_space_id = H5Aget_space(attr_id);
-        npoints = H5Sget_select_npoints(attr_space_id);
+        sel_type = H5Sget_select_type(attr_space_id);
+        if (sel_type != H5S_SEL_ALL) {
+            croak( "H5S selections are not yet supported\n" );
+        }
+        n_dims = H5Sget_simple_extent_ndims(attr_space_id);
+        printf("Ndims: %i\n", n_dims);
+        if (n_dims != 1) {
+            printf( "Multidimensional attributes (%i) not yet supported\n", n_dims );
+        }
 
+        npoints = H5Sget_simple_extent_npoints(attr_space_id);
         hsize_t size;
         size = H5Tget_size(type);
         int sign;
@@ -361,7 +372,7 @@ H5Aread(attr_id)
                     free(read_data);
                 }
             }
-            else {
+            else if (size == 8) {
                 if (sign == H5T_SGN_NONE) {
                     uint64_t *read_data;
                     read_data = (uint64_t *) malloc(sizeof(uint64_t) * npoints);
@@ -383,19 +394,41 @@ H5Aread(attr_id)
                     free(read_data);
                 }
             }
+            else {
+                croak( "Unsupported integer size: %i", size );
+            }
 
 
         }
         else if (class == H5T_FLOAT) {
 
-            double *read_data;
-            read_data = (double *) malloc(sizeof(double) * npoints);
-            H5Aread(attr_id, native, read_data);
-            for (i = 0; i < npoints; i++) {
-                elem = newSVnv(read_data[i]);
-                av_store(data, i, elem);
+            if (size == 4) {
+
+                float *read_data;
+                read_data = (float *) malloc(sizeof(float) * npoints);
+                H5Aread(attr_id, native, read_data);
+                for (i = 0; i < npoints; i++) {
+                    elem = newSVnv(read_data[i]);
+                    av_store(data, i, elem);
+                }
+                free(read_data);
+
             }
-            free(read_data);
+            else if (size == 8) {
+
+                double *read_data;
+                read_data = (double *) malloc(sizeof(double) * npoints);
+                H5Aread(attr_id, native, read_data);
+                for (i = 0; i < npoints; i++) {
+                    elem = newSVnv(read_data[i]);
+                    av_store(data, i, elem);
+                }
+                free(read_data);
+
+            }
+            else {
+                croak( "Unsupported floating point size: %i", size );
+            }
 
         }
         else if (class == H5T_STRING) {
@@ -754,3 +787,13 @@ H5Oget_info(object_id)
         free(info);
     OUTPUT:
         RETVAL
+
+#---------------------------------------------------------------------------#
+
+hid_t
+H5Oopen(loc_id, name, lapl_id)
+	hid_t loc_id
+	char *name
+    hid_t lapl_id
+
+#---------------------------------------------------------------------------#

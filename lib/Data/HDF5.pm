@@ -44,6 +44,7 @@ my @functions = qw/
     H5Lget_name_by_idx
 
     H5Oget_info
+    H5Oopen
 /;
 
 
