@@ -1,0 +1,27 @@
+sudo: false
+language: perl
+perl:
+  - "5.22"
+  - "5.20"
+  - "5.18"
+  - "5.16"
+  - "5.14"
+  - "5.12"
+os:
+  - linux
+before_install:
+  - "cpanm Module::Build::WithXSpp"
+  - "cpanm ExtUtils::Typemaps::ObjectMap"
+  - "cpanm Devel::Cover"
+  - eval $(curl https://travis-perl.github.io/init) --auto
+compiler:
+  - gcc
+#install:
+  #- export CXX="g++-4.8" CC="gcc-4.8"
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - gcc-4.8
+    - libhdf5-dev

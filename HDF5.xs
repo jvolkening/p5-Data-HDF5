@@ -208,6 +208,24 @@ H5Aopen_by_name(loc_id, obj_name, attr_name, aapl_id, lapl_id)
 #---------------------------------------------------------------------------#
 
 hid_t
+H5Aopen_by_idx(loc_id, obj_name, idx_type, order, n, aapl_id, lapl_id)
+    hid_t loc_id
+	char *obj_name
+    H5_index_t idx_type
+    H5_iter_order_t order
+    hsize_t n
+	hid_t aapl_id
+	hid_t lapl_id
+
+#---------------------------------------------------------------------------#
+
+herr_t
+H5Aclose(attr_id)
+	hid_t attr_id
+
+#---------------------------------------------------------------------------#
+
+hid_t
 H5Aget_type(attr_id)
 	hid_t attr_id
 

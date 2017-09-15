@@ -25,6 +25,8 @@ my @functions = qw/
     H5Gget_info_by_idx
 
     H5Aopen_by_name
+    H5Aopen_by_idx
+    H5Aclose
     H5Aget_type
     H5Aget_name
     H5Aread
