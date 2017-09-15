@@ -22,9 +22,7 @@ addons:
     packages:
     - gcc-4.8
     - libhdf5-dev
-#matrix:
-  #include:
-    #- perl: "5.20"
-      #env: COVERAGE=1   # enables coverage+coveralls reporting
-script:
-  perl Makefile.PL && make && cover --test --report coveralls
+matrix:
+  include:
+    - perl: "5.22"
+      after_script: perl Makefile.PL && make && cover --test --report coveralls
