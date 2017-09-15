@@ -9,10 +9,6 @@ perl:
   - "5.12"
 os:
   - linux
-before_install:
-  - "cpanm -n Devel::Cover"
-  - "cpanm -n Devel::Cover::Report::Coveralls"
-  #- eval $(curl https://travis-perl.github.io/init) --auto
 compiler:
   - gcc
 addons:
@@ -25,4 +21,7 @@ addons:
 matrix:
   include:
     - perl: "5.22"
-      after_script: perl Makefile.PL && make && cover -test -ignore_re '.*inline.h' -ignore_re 'const-.*'
+      before_install:
+        - "cpanm -n Devel::Cover"
+        - "cpanm -n Devel::Cover::Report::Coveralls"
+      after_script: perl Makefile.PL && make && cover -ignore_re 'const-.*' -ignore_re '.*inline.h' -select 'HDF5.xs' -select 'blib/lib/Data/HDF5.pm' -test
