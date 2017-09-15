@@ -21,7 +21,8 @@ addons:
 matrix:
   include:
     - perl: "5.22"
+      env: COVERALLS=1 # to make purpose in Travis-CI view obvious
       before_install:
         - "cpanm -n Devel::Cover"
         - "cpanm -n Devel::Cover::Report::Coveralls"
-      after_script: perl Makefile.PL && make && cover -ignore_re 'const-.*' -ignore_re '.*inline.h' -select 'HDF5.xs' -select 'blib/lib/Data/HDF5.pm' -test
+      after_script: perl Makefile.PL && make && cover -gcov -ignore_re 'const-.*' -ignore_re '.*inline.h' -select 'HDF5.xs' -select 'blib/lib/Data/HDF5.pm' -test
