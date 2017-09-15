@@ -21,4 +21,4 @@ matrix:
       before_install:
         - "cpanm -n Devel::Cover"
         - "cpanm -n Devel::Cover::Report::Coveralls"
-      after_script: perl Makefile.PL && cover --help && cover -gcov -ignore_re 'const-.*' -ignore_re '.*inline.h' -test
+      after_script: perl Makefile.PL && cover -gcov -ignore_re 'const-.*' -ignore_re '.*inline.h' -test -report
