@@ -2,11 +2,15 @@ use 5.008;
 use ExtUtils::MakeMaker;
 use ExtUtils::Constant qw/WriteConstants/;
 
+my @predefined_types;
+open my $types, '<', 'predefined_types.list';
+while (my $line = <$types>) {
+    chomp $line;
+    push @predefined_types, $line;
+};
+close $types;
+
 my @names = qw/
-    H5T_NATIVE_INT
-    H5T_NATIVE_DOUBLE
-    H5T_NATIVE_FLOAT
-    H5T_NATIVE_CHAR
     H5T_VARIABLE
     H5F_ACC_TRUNC
     H5P_DEFAULT
@@ -21,7 +25,6 @@ my @names = qw/
     H5F_SCOPE_LOCAL
     H5S_UNLIMITED
     H5S_SELECT_SET
-    H5T_C_S1
     H5D_FILL_TIME_ALLOC
 
     H5G_NTYPES
@@ -111,6 +114,7 @@ my @enums = qw/
 /;
 
 push @names, map { {name => $_, macro => 1} } @enums;
+push @names, @predefined_types;
 WriteConstants(
     NAME => 'Data::HDF5',
     DEFAULT_TYPE => 'IV',
