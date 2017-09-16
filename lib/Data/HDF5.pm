@@ -28,6 +28,7 @@ my @functions = qw/
     H5Aopen_by_idx
     H5Aclose
     H5Aget_type
+    H5Aget_space
     H5Aget_name
     H5Aread
 
@@ -37,19 +38,38 @@ my @functions = qw/
     H5Dget_space
     H5Dget_type
 
+    H5Tclose
+    H5Tcopy
     H5Tget_class
     H5Tget_native_type
-    H5Tclose
+    H5Tget_order
+    H5Tget_precision
+    H5Tget_sign
+    H5Tget_super
 
     H5Lget_name_by_idx
 
     H5Oget_info
     H5Oopen
 
+    H5Sget_simple_extent_ndims
+    H5Sclose
+
 /;
 
 
 my @constants = qw/
+
+    H5F_ACC_TRUNC
+    H5F_ACC_RDONLY
+    H5F_ACC_RDWR
+    H5F_ACC_EXCL
+    H5F_ACC_CREAT
+    H5F_ACC_SWMR_WRITE
+    H5F_ACC_SWMR_READ
+    H5F_ACC_DEFAULT
+    H5F_SCOPE_GLOBAL
+    H5F_SCOPE_LOCAL
 
     H5_ITER_UNKNOWN
     H5_ITER_INC
@@ -73,17 +93,12 @@ my @constants = qw/
     H5T_NATIVE_FLOAT
     H5T_NATIVE_CHAR
     H5T_VARIABLE
-    H5F_ACC_TRUNC
     H5P_DEFAULT
-    H5F_ACC_RDONLY
-    H5F_ACC_RDWR
     H5P_FILE_CREATE
     H5P_FILE_ACCESS
     H5P_DATASET_CREATE
     H5P_DATASET_XFER
     H5P_FILE_MOUNT
-    H5F_SCOPE_GLOBAL
-    H5F_SCOPE_LOCAL
     H5S_UNLIMITED
     H5S_SELECT_SET
     H5T_C_S1

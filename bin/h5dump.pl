@@ -5,8 +5,21 @@ use warnings;
 use 5.012;
 
 use Data::HDF5 qw/:all/;
+use FindBin;
+use Data::Dumper;
+
+no strict 'refs';
 
 my $fn = $ARGV[0] // die "No filename specified";
+
+# parse predefined datatypes
+my %types;
+open my $fn_types, '<', "$FindBin::Bin/../predefined_types.list";
+while (my $type = <$fn_types>) {
+    chomp $type;
+    $types{ &$type() } = $type;
+}
+close $fn_types;
 
 # open file
 my $fd = H5Fopen(
@@ -62,10 +75,18 @@ sub process_object {
         );
         my $name = H5Aget_name($aid);
         my $vals = H5Aread($aid);
+        my $type = H5Aget_type($aid);
+        my $str_type = make_string_type($type);
+        H5Tclose($type);
+        my $s_id = H5Aget_space($aid);
+        my $n_dims = H5Sget_simple_extent_ndims($s_id);
+        H5Sclose($s_id);
 
         printlns("ATTRIBUTE \"$name\" {");
         ++$level;
         printlns(
+            "DATATYPE $str_type",
+            "NDIMS $n_dims",
             "DATA {",
             "(O): " . join(', ', @$vals),
             '}',
@@ -80,7 +101,15 @@ sub process_object {
     if ($info->{type} == H5O_TYPE_DATASET) {
         ++$level;
         my $vals = H5Dread($o_id);
+        my $type = H5Dget_type($o_id);
+        my $str_type = make_string_type($type);
+        H5Tclose($type);
+        my $s_id = H5Dget_space($o_id);
+        my $n_dims = H5Sget_simple_extent_ndims($s_id);
+        H5Sclose($s_id);
         printlns(
+            "DATATYPE $str_type",
+            "NDIMS $n_dims",
             "DATA {",
             "(O): " . join(', ', @$vals),
             '}',
@@ -128,3 +157,43 @@ sub printlns {
     }
 
 }
+
+sub make_string_type {
+    
+    my ($id) = @_;
+    my $class = H5Tget_class($id);
+
+    if ($class == H5T_STRING) {
+        return 'H5T_STRING';
+    }
+
+    my $p = H5Tget_precision($id);
+
+    if ($class == H5T_INTEGER) {
+        my $sign = H5Tget_sign($id);
+        my $s = $sign == H5T_SGN_NONE ? 'U'
+              : $sign == H5T_SGN_2   ? 'I'
+              : die "unknown sign type $sign\n";
+        my $order = H5Tget_order($id);
+        my $e = $order == H5T_ORDER_LE ? 'LE'
+              : $order == H5T_ORDER_BE ? 'BE'
+              : die "unexpected byte order $order\n";
+        return "H5T_STD_$s$p$e";
+    }
+    elsif ($class == H5T_FLOAT) {
+        my $order = H5Tget_order($id);
+        my $e = $order == H5T_ORDER_LE  ? 'LE'
+              : $order == H5T_ORDER_BE  ? 'BE'
+              : $order == H5T_ORDER_VAX ? 'VAX'
+              : die "unexpected byte order $order\n";
+        if ($order eq 'VAX') {
+            return "H5T_VAX_F$p";
+        }
+        else {
+            return "H5T_IEEE_F$p$e";
+        }
+    }
+    else {
+        die "unsupported datatype\n";
+    }
+} 
