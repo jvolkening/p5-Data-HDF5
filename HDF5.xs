@@ -271,21 +271,20 @@ H5Aread(attr_id)
     hid_t attr_id;
 
     PREINIT:
-
         AV *data;
-        int npoints;
+        SV *elem;
+        hssize_t npoints;
         int i;
         hid_t attr_space_id;
-        SV *elem;
-
-    INIT:
-        if (attr_id < 0)
-                XSRETURN_UNDEF;
         hid_t type;
         hid_t native;
         H5T_class_t class;
         H5S_sel_type sel_type;
         int n_dims;
+
+    INIT:
+        if (attr_id < 0)
+                XSRETURN_UNDEF;
     CODE:
         type = H5Aget_type(attr_id);
         class = H5Tget_class(type);
@@ -298,9 +297,8 @@ H5Aread(attr_id)
             croak( "H5S selections are not yet supported\n" );
         }
         n_dims = H5Sget_simple_extent_ndims(attr_space_id);
-        printf("Ndims: %i\n", n_dims);
-        if (n_dims != 1) {
-            printf( "Multidimensional attributes (%i) not yet supported\n", n_dims );
+        if (n_dims > 1) {
+            croak( "ERROR: Multidimensional attributes (n=%i) not yet supported\n", n_dims );
         }
 
         npoints = H5Sget_simple_extent_npoints(attr_space_id);
@@ -308,7 +306,6 @@ H5Aread(attr_id)
         size = H5Tget_size(type);
         int sign;
         sign = H5Tget_sign(type);
-
 
         if (class == H5T_INTEGER) {
 
@@ -472,19 +469,20 @@ H5Dread(dataset_id)
     hid_t dataset_id;
 
     PREINIT:
-
         AV *data;
-        int npoints;
+        SV *elem;
+        hssize_t npoints;
         int i;
         hid_t dataset_space_id;
-        SV *elem;
+        hid_t type;
+        hid_t native;
+        H5T_class_t class;
+        H5S_sel_type sel_type;
+        int n_dims;
 
     INIT:
         if (dataset_id < 0)
                 XSRETURN_UNDEF;
-        hid_t type;
-        hid_t native;
-        H5T_class_t class;
     CODE:
         type = H5Dget_type(dataset_id);
         class = H5Tget_class(type);
@@ -492,8 +490,16 @@ H5Dread(dataset_id)
 
         data = (AV *)sv_2mortal((SV *)newAV());
         dataset_space_id = H5Dget_space(dataset_id);
-        npoints = H5Sget_select_npoints(dataset_space_id);
+        sel_type = H5Sget_select_type(dataset_space_id);
+        if (sel_type != H5S_SEL_ALL) {
+            croak( "H5S selections are not yet supported\n" );
+        }
+        n_dims = H5Sget_simple_extent_ndims(dataset_space_id);
+        if (n_dims > 1) {
+            croak( "ERROR: Multidimensional attributes (n=%i) not yet supported\n", n_dims );
+        }
 
+        npoints = H5Sget_simple_extent_npoints(dataset_space_id);
         hsize_t size;
         size = H5Tget_size(type);
         int sign;
@@ -505,7 +511,7 @@ H5Dread(dataset_id)
                 if (sign == H5T_SGN_NONE) {
                     uint8_t *read_data;
                     read_data = (uint8_t *) malloc(sizeof(uint8_t) * npoints);
-                    H5Dread(dataset_id, type, H5S_ALL, H5S_ALL, H5P_DEFAULT, read_data);
+                    H5Dread(dataset_id, native, H5S_ALL, H5S_ALL, H5P_DEFAULT, read_data);
                     for (i = 0; i < npoints; i++) {
                         elem = newSVuv(read_data[i]);
                         av_store(data, i, elem);
@@ -515,7 +521,7 @@ H5Dread(dataset_id)
                 else if (sign == H5T_SGN_2) {
                     int8_t *read_data;
                     read_data = (int8_t *) malloc(sizeof(int8_t) * npoints);
-                    H5Dread(dataset_id, type, H5S_ALL, H5S_ALL, H5P_DEFAULT, read_data);
+                    H5Dread(dataset_id, native, H5S_ALL, H5S_ALL, H5P_DEFAULT, read_data);
                     for (i = 0; i < npoints; i++) {
                         elem = newSViv(read_data[i]);
                         av_store(data, i, elem);
@@ -527,7 +533,7 @@ H5Dread(dataset_id)
                 if (sign == H5T_SGN_NONE) {
                     uint16_t *read_data;
                     read_data = (uint16_t *) malloc(sizeof(uint16_t) * npoints);
-                    H5Dread(dataset_id, type, H5S_ALL, H5S_ALL, H5P_DEFAULT, read_data);
+                    H5Dread(dataset_id, native, H5S_ALL, H5S_ALL, H5P_DEFAULT, read_data);
                     for (i = 0; i < npoints; i++) {
                         elem = newSVuv(read_data[i]);
                         av_store(data, i, elem);
@@ -537,7 +543,7 @@ H5Dread(dataset_id)
                 else if (sign == H5T_SGN_2) {
                     int16_t *read_data;
                     read_data = (int16_t *) malloc(sizeof(int16_t) * npoints);
-                    H5Dread(dataset_id, type, H5S_ALL, H5S_ALL, H5P_DEFAULT, read_data);
+                    H5Dread(dataset_id, native, H5S_ALL, H5S_ALL, H5P_DEFAULT, read_data);
                     for (i = 0; i < npoints; i++) {
                         elem = newSViv(read_data[i]);
                         av_store(data, i, elem);
@@ -549,7 +555,7 @@ H5Dread(dataset_id)
                 if (sign == H5T_SGN_NONE) {
                     uint32_t *read_data;
                     read_data = (uint32_t *) malloc(sizeof(uint32_t) * npoints);
-                    H5Dread(dataset_id, type, H5S_ALL, H5S_ALL, H5P_DEFAULT, read_data);
+                    H5Dread(dataset_id, native, H5S_ALL, H5S_ALL, H5P_DEFAULT, read_data);
                     for (i = 0; i < npoints; i++) {
                         elem = newSVuv(read_data[i]);
                         av_store(data, i, elem);
@@ -559,7 +565,7 @@ H5Dread(dataset_id)
                 else if (sign == H5T_SGN_2) {
                     int32_t *read_data;
                     read_data = (int32_t *) malloc(sizeof(int32_t) * npoints);
-                    H5Dread(dataset_id, type, H5S_ALL, H5S_ALL, H5P_DEFAULT, read_data);
+                    H5Dread(dataset_id, native, H5S_ALL, H5S_ALL, H5P_DEFAULT, read_data);
                     for (i = 0; i < npoints; i++) {
                         elem = newSViv(read_data[i]);
                         av_store(data, i, elem);
@@ -571,7 +577,7 @@ H5Dread(dataset_id)
                 if (sign == H5T_SGN_NONE) {
                     uint64_t *read_data;
                     read_data = (uint64_t *) malloc(sizeof(uint64_t) * npoints);
-                    H5Dread(dataset_id, type, H5S_ALL, H5S_ALL, H5P_DEFAULT, read_data);
+                    H5Dread(dataset_id, native, H5S_ALL, H5S_ALL, H5P_DEFAULT, read_data);
                     for (i = 0; i < npoints; i++) {
                         elem = newSVuv(read_data[i]);
                         av_store(data, i, elem);
@@ -581,7 +587,7 @@ H5Dread(dataset_id)
                 else if (sign == H5T_SGN_2) {
                     int64_t *read_data;
                     read_data = (int64_t *) malloc(sizeof(int64_t) * npoints);
-                    H5Dread(dataset_id, type, H5S_ALL, H5S_ALL, H5P_DEFAULT, read_data);
+                    H5Dread(dataset_id, native, H5S_ALL, H5S_ALL, H5P_DEFAULT, read_data);
                     for (i = 0; i < npoints; i++) {
                         elem = newSViv(read_data[i]);
                         av_store(data, i, elem);
@@ -716,6 +722,25 @@ H5T_sign_t
 H5Tget_sign(id)
 	hid_t id
 
+#---------------------------------------------------------------------------#
+
+H5T_str_t
+H5Tget_strpad(id)
+	hid_t id
+
+#---------------------------------------------------------------------------#
+
+H5T_cset_t
+H5Tget_cset(id)
+	hid_t id
+
+#---------------------------------------------------------------------------#
+
+size_t
+H5Tget_size(id)
+	hid_t id
+
+
 #############################################################################
 # H5L API
 #############################################################################
@@ -843,7 +868,55 @@ H5Sget_simple_extent_ndims(space_id)
 
 #---------------------------------------------------------------------------#
 
+hssize_t
+H5Sget_simple_extent_npoints(space_id)
+	hid_t space_id
+
+#---------------------------------------------------------------------------#
+
 herr_t
 H5Sclose(space_id)
 	hid_t space_id
+
+#---------------------------------------------------------------------------#
+
+AV *
+H5Sget_simple_extent_dims(space_id)
+	hid_t space_id
+
+	PREINIT:
+		AV * dims;
+		AV * maxdims;
+		AV * ret;
+	
+	INIT:
+		hsize_t *read_dims;	
+		hsize_t *read_maxdims;	
+		int rank;
+		int i;
+		SV *elem;
+	CODE:
+        dims    = (AV *)sv_2mortal((SV *)newAV());
+        maxdims = (AV *)sv_2mortal((SV *)newAV());
+
+        rank = H5Sget_simple_extent_ndims(space_id);
+
+		read_dims    = (hsize_t *) malloc(sizeof(hsize_t) * rank);
+		read_maxdims = (hsize_t *) malloc(sizeof(hsize_t) * rank);
+
+        H5Sget_simple_extent_dims(space_id, read_dims, read_maxdims);
+
+		for (i = 0; i < rank; i++) {
+            elem = newSViv(read_dims[i]);
+            av_store(dims, i, elem);
+            elem = newSViv(read_maxdims[i]);
+            av_store(maxdims, i, elem);
+		}
+
+        ret = (AV *)sv_2mortal((SV *)newAV());
+        av_push(ret, newRV( (SV *)dims    ));
+        av_push(ret, newRV( (SV *)maxdims ));
+        RETVAL = ret;
+	OUTPUT:
+        RETVAL	
 

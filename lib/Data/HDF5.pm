@@ -41,10 +41,13 @@ my @functions = qw/
     H5Tclose
     H5Tcopy
     H5Tget_class
+    H5Tget_cset
     H5Tget_native_type
     H5Tget_order
     H5Tget_precision
     H5Tget_sign
+    H5Tget_size
+    H5Tget_strpad
     H5Tget_super
 
     H5Lget_name_by_idx
@@ -52,8 +55,10 @@ my @functions = qw/
     H5Oget_info
     H5Oopen
 
-    H5Sget_simple_extent_ndims
     H5Sclose
+    H5Sget_simple_extent_dims
+    H5Sget_simple_extent_ndims
+    H5Sget_simple_extent_npoints
 
 /;
 
@@ -169,6 +174,15 @@ my @constants = qw/
 
     H5T_SGN_NONE
     H5T_SGN_2
+
+    H5T_STR_ERROR
+    H5T_STR_NULLTERM
+    H5T_STR_NULLPAD
+    H5T_STR_SPACEPAD
+
+    H5T_CSET_ERROR
+    H5T_CSET_ASCII
+    H5T_CSET_UTF8
 
     H5T_ALPHA_B16
     H5T_ALPHA_B32

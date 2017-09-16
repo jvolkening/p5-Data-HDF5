@@ -7,6 +7,7 @@ use 5.012;
 use Data::HDF5 qw/:all/;
 use FindBin;
 use Data::Dumper;
+use Math::SigFigs;
 
 no strict 'refs';
 
@@ -41,6 +42,7 @@ die "Error opening root\n" if ($root < 0);
 
 printlns("HDF5 \"$fn\" {");
 process_object($root, '/');
+printlns('}');
 
 exit;
 
@@ -75,22 +77,25 @@ sub process_object {
         );
         my $name = H5Aget_name($aid);
         my $vals = H5Aread($aid);
-        my $type = H5Aget_type($aid);
-        my $str_type = make_string_type($type);
-        H5Tclose($type);
+
         my $s_id = H5Aget_space($aid);
-        my $n_dims = H5Sget_simple_extent_ndims($s_id);
+        my $str_space = make_string_space($s_id);
         H5Sclose($s_id);
 
         printlns("ATTRIBUTE \"$name\" {");
         ++$level;
+
+        my $type = H5Aget_type($aid);
+        print_string_type($type);
+
         printlns(
-            "DATATYPE $str_type",
-            "NDIMS $n_dims",
+            "DATASPACE  $str_space",
             "DATA {",
-            "(O): " . join(', ', @$vals),
+            make_value_block($type, @$vals),
             '}',
         );
+
+        H5Tclose($type);
 
         --$level;
         printlns('}');
@@ -99,22 +104,21 @@ sub process_object {
     }
 
     if ($info->{type} == H5O_TYPE_DATASET) {
-        ++$level;
         my $vals = H5Dread($o_id);
-        my $type = H5Dget_type($o_id);
-        my $str_type = make_string_type($type);
-        H5Tclose($type);
         my $s_id = H5Dget_space($o_id);
-        my $n_dims = H5Sget_simple_extent_ndims($s_id);
+        my $str_space = make_string_space($s_id);
         H5Sclose($s_id);
+
+        my $type = H5Dget_type($o_id);
+        print_string_type($type);
+
         printlns(
-            "DATATYPE $str_type",
-            "NDIMS $n_dims",
+            "DATASPACE  $str_space",
             "DATA {",
-            "(O): " . join(', ', @$vals),
+            make_value_block($type, @$vals),
             '}',
         );
-        --$level;
+        H5Tclose($type);
     }
     elsif ($info->{type} == H5O_TYPE_GROUP) {
 
@@ -147,6 +151,7 @@ sub process_object {
     }
 
     --$level;
+    printlns('}');
 
 }
 
@@ -158,18 +163,38 @@ sub printlns {
 
 }
 
-sub make_string_type {
+sub print_string_type {
     
     my ($id) = @_;
     my $class = H5Tget_class($id);
 
-    if ($class == H5T_STRING) {
-        return 'H5T_STRING';
-    }
-
     my $p = H5Tget_precision($id);
 
-    if ($class == H5T_INTEGER) {
+    if ($class == H5T_STRING) {
+        my $sz = $p/8;
+        my $pad = H5Tget_strpad($id);
+        my $pd = $pad == H5T_STR_NULLTERM ? 'H5T_STR_NULLTERM'
+               : $pad == H5T_STR_NULLPAD  ? 'H5T_STR_NULLPAD'
+               : $pad == H5T_STR_SPACEPAD ? 'H5T_STR_SPACEPAD'
+               : die "unrecognized pad type $pad\n";
+        my $cset = H5Tget_cset($id);
+        my $cs = $cset == H5T_CSET_ASCII ? 'H5T_CSET_ASCII'
+               : $cset == H5T_CSET_UTF8  ? 'H5T_CSET_UTF8'
+               : die "unrecognized cset type $cset\n";
+        my $ct = 'H5T_C_S1'; # when is this not the case?
+        printlns("DATATYPE  H5T_STRING {");
+        ++$level;
+        printlns(
+            "STRSIZE $sz;",
+            "STRPAD $pd;",
+            "CSET $cs;",
+            "CTYPE $ct;",
+        );
+        --$level;
+        printlns('}');
+    }
+
+    elsif ($class == H5T_INTEGER) {
         my $sign = H5Tget_sign($id);
         my $s = $sign == H5T_SGN_NONE ? 'U'
               : $sign == H5T_SGN_2   ? 'I'
@@ -178,7 +203,7 @@ sub make_string_type {
         my $e = $order == H5T_ORDER_LE ? 'LE'
               : $order == H5T_ORDER_BE ? 'BE'
               : die "unexpected byte order $order\n";
-        return "H5T_STD_$s$p$e";
+        printlns("DATATYPE  H5T_STD_$s$p$e");
     }
     elsif ($class == H5T_FLOAT) {
         my $order = H5Tget_order($id);
@@ -187,13 +212,84 @@ sub make_string_type {
               : $order == H5T_ORDER_VAX ? 'VAX'
               : die "unexpected byte order $order\n";
         if ($order eq 'VAX') {
-            return "H5T_VAX_F$p";
+            printlns("DATATYPE  H5T_VAX_F$p");
         }
         else {
-            return "H5T_IEEE_F$p$e";
+            printlns("DATATYPE  H5T_IEEE_F$p$e");
         }
     }
     else {
         die "unsupported datatype\n";
     }
 } 
+
+sub make_string_space {
+
+    my ($s_id) = @_;
+
+    my $n_dims = H5Sget_simple_extent_ndims($s_id);
+    my $str_space = $n_dims == 0 ? 'SCALAR'
+                    : 'SIMPLE';
+    if ($n_dims > 0) {
+
+        my $dims = H5Sget_simple_extent_dims($s_id);
+        my $size = $dims->[0];
+        my $max  = $dims->[1];
+        @$max = map {$_ == H5S_UNLIMITED ? 'H5S_UNLIMITED' : $_} @$max;
+        $str_space .= ' { ( '
+            . join(', ', @$size)
+            . ' ) / ( '
+            . join(', ', @$max)
+            . ' ) }'
+        ;
+    }
+
+    return $str_space;
+}
+
+sub make_value_block {
+
+    my ($type, @vals) = @_;
+    my @lines;
+
+    # wrap string values in double quotes
+    if (H5Tget_class($type) == H5T_STRING) {
+        @vals = map {"\"$_\""} @vals;
+        @vals = map {$_ =~ s/\n/\n           /gs; $_;} @vals;
+    }
+    if (H5Tget_class($type) == H5T_FLOAT) {
+        @vals = map {sprintf('%.6g', $_)} @vals;
+    }
+
+    my $ll = 77 - length($tab x $level);
+
+    my @set;
+    my $i = 0;
+    my $ri = $i;
+
+    while (scalar(@vals)) {
+        ++$i;
+        push @set, shift @vals;
+        my $tmp = "($ri): " . join( ', ', @set );
+        $tmp .= ',' if (scalar @vals);
+        if (length($tmp) > $ll && scalar(@set) > 1) {
+            unshift @vals, pop @set;
+            --$i;
+            my $str = "($ri): " . join( ', ', @set );
+            $str .= ',' if (scalar @vals);
+            push @lines, $str;
+            @set = ();
+            $ri = $i;
+        }
+    }
+    if (scalar @set) {
+        push @lines, "($ri): " . join( ', ', @set );
+    }
+
+    return @lines;
+
+}
+
+
+                
+        

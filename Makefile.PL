@@ -117,6 +117,15 @@ my @enums = qw/
 
     H5T_SGN_NONE
     H5T_SGN_2
+
+    H5T_STR_ERROR
+    H5T_STR_NULLTERM
+    H5T_STR_NULLPAD
+    H5T_STR_SPACEPAD
+
+    H5T_CSET_ERROR
+    H5T_CSET_ASCII
+    H5T_CSET_UTF8
 /;
 
 push @names, map { {name => $_, macro => 1} } @enums;
