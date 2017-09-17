@@ -44,6 +44,17 @@ ok( $info = H5Gget_info_by_idx($g_id, '.', H5_INDEX_NAME, H5_ITER_INC, 0, H5P_DE
     "get good group info by index" );
 ok( $info->{nlinks} == 1,
     "correct subgroup nlinks" );
+ok( H5Gget_info_by_idx($g_id, '.', H5_INDEX_NAME, H5_ITER_INC, 99, H5P_DEFAULT) == -1,
+    "get group info by bad index" );
+
+# H5Gget_info_by_name
+
+ok( $info = H5Gget_info_by_name($g_id, 'BaseCalled_template', H5P_DEFAULT),
+    "get good group info by name" );
+ok( $info->{nlinks} == 1,
+    "correct subgroup nlinks" );
+ok( H5Gget_info_by_name($g_id, 'BarFoo', H5P_DEFAULT) == -1,
+    "get group info by bad name" );
 
 ok (H5Gclose($g_id) >= 0,
     "close good group" );

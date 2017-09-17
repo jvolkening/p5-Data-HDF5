@@ -29,6 +29,12 @@ H5Fcreate(name, flags, fcpl_id, fapl_id)
 	hid_t fcpl_id
 	hid_t fapl_id
 
+    CODE:
+        RETVAL = H5Fcreate(name, flags, fcpl_id, fapl_id);
+    OUTPUT:
+        RETVAL
+        
+
 #---------------------------------------------------------------------------#
 
 hid_t
@@ -37,11 +43,21 @@ H5Fopen(name, flags, fapl_id)
 	unsigned int flags
 	hid_t fapl_id
 
+    CODE:
+        RETVAL = H5Fopen(name, flags, fapl_id);
+    OUTPUT:
+        RETVAL
+
 #---------------------------------------------------------------------------#
 
 herr_t
 H5Fclose(file_id)
 	hid_t file_id
+
+    CODE:
+        RETVAL = H5Fclose(file_id);
+    OUTPUT:
+        RETVAL
 
 #---------------------------------------------------------------------------#
 		
@@ -49,6 +65,11 @@ herr_t
 H5Fflush(file_id, scope)
 	hid_t file_id
 	H5F_scope_t scope
+
+    CODE:
+        RETVAL = H5Fflush(file_id, scope);
+    OUTPUT:
+        RETVAL
 
 
 #############################################################################
@@ -87,11 +108,21 @@ herr_t
 H5Gclose(group_id)
 	hid_t group_id
 
+	CODE:
+		RETVAL = H5Gclose(group_id);
+	OUTPUT:
+		RETVAL
+
 #----------------------------------------------------------------------------#
 
 hid_t
 H5Gget_create_plist(group_id)
 	hid_t group_id
+
+	CODE:
+		RETVAL = H5Gget_create_plist(group_id);
+	OUTPUT:
+		RETVAL
 
 #----------------------------------------------------------------------------#
 
