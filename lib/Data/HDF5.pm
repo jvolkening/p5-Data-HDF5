@@ -60,6 +60,9 @@ my @functions = qw/
     H5Sget_simple_extent_ndims
     H5Sget_simple_extent_npoints
 
+    H5Pclose
+    H5Pequal
+
 /;
 
 

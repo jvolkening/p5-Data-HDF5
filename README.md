@@ -11,12 +11,15 @@ WARNING
 
 This module is currently a work in progress aiming to update and clean up the
 HDFPerl demo package produced by the HDF Group. The current status is
-UNSTABLE!
+UNSTABLE! Function names may change and functionality may be added or removed.
 
 DO NOT USE this module in production code (or be willing to accept the
 conseuqences)!
 
 This notification will be removed when the codebase reaches a stable state.
+
+The current goal is to properly bind and thoroughly test a core subset of
+functions, after which additional functionality will be added over time.
 
 INSTALLATION
 ------------
@@ -42,9 +45,12 @@ non-standard location, you may need to do e.g.
 COPYRIGHT AND LICENSE
 ---------------------
 
-This code was derived from the HDFPerl demonstration package produced by the
-HDF Group. The original code was Copyright (C) 2006-2008 by The HDF Group
-(THG). A copy of the original license is included in this distribution.
+This code was originally derived from the HDFPerl demonstration package
+produced by the HDF Group. The original code was Copyright (C) 2006-2008 by
+The HDF Group (THG).
+
+The current codebase has been almost completely rewritten and little (if
+any) of the original code remains.
 
 This version is Copyright (C) 2015-2017 Jeremy Volkening <jdv@base2bio.com>
 
