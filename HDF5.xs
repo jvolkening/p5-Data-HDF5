@@ -137,6 +137,17 @@ H5Fopen(name, flags, fapl_id)
 # H5G API
 #############################################################################
 
+herr_t
+H5Gclose(group_id)
+	hid_t group_id
+
+	CODE:
+		RETVAL = H5Gclose(group_id);
+	OUTPUT:
+		RETVAL
+
+#----------------------------------------------------------------------------#
+
 hid_t
 H5Gcreate(loc_id, name, lcpl_id, gcpl_id, gapl_id)
 	hid_t loc_id
@@ -148,30 +159,6 @@ H5Gcreate(loc_id, name, lcpl_id, gcpl_id, gapl_id)
 	CODE:
 		RETVAL = H5Gcreate2(loc_id, name, lcpl_id, gcpl_id, gapl_id);
 	OUTPUT:	
-		RETVAL
-
-#----------------------------------------------------------------------------#
-
-hid_t
-H5Gopen(loc_id, name, gapl_id)
-	hid_t loc_id
-	char *name
-    hid_t gapl_id
-
-	CODE:
-		RETVAL = H5Gopen2(loc_id, name, gapl_id);
-	OUTPUT:
-		RETVAL
-
-#----------------------------------------------------------------------------#
-
-herr_t
-H5Gclose(group_id)
-	hid_t group_id
-
-	CODE:
-		RETVAL = H5Gclose(group_id);
-	OUTPUT:
 		RETVAL
 
 #----------------------------------------------------------------------------#
@@ -198,36 +185,6 @@ H5Gget_info(group_id)
     CODE:
         info = (H5G_info_t *)malloc(sizeof(H5G_info_t));
         ret  = H5Gget_info(group_id, info);
-        if (ret < 0) {
-            RETVAL = newSViv(ret);
-        }
-        else {
-            info_hash = (HV *) sv_2mortal((SV *) newHV ());
-            hv_store( info_hash, "nlinks",        6, newSVuv( info->nlinks ),       0 );
-            hv_store( info_hash, "max_corder",   10, newSViv( info->max_corder ),   0 );
-            hv_store( info_hash, "storage_type", 12, newSViv( info->storage_type ), 0 );
-            hv_store( info_hash, "mounted",       7, newSVuv( info->mounted ),      0 );
-            RETVAL = newRV((SV *)info_hash);
-        }
-        free(info);
-    OUTPUT:
-        RETVAL
-
-#----------------------------------------------------------------------------#
-
-SV *
-H5Gget_info_by_name(loc_id, group_name, lapl_id)
-    hid_t loc_id
-    char *group_name
-    hid_t lapl_id
-
-    PREINIT:
-        herr_t ret;
-        HV *info_hash;
-        H5G_info_t *info;
-    CODE:
-        info = (H5G_info_t *)malloc(sizeof(H5G_info_t));
-        ret = H5Gget_info_by_name(loc_id, group_name, info, lapl_id);
         if (ret < 0) {
             RETVAL = newSViv(ret);
         }
@@ -284,48 +241,180 @@ H5Gget_info_by_idx(loc_id, group_name, index_type, order, n, lapl_id)
     OUTPUT:
         RETVAL
 
+#----------------------------------------------------------------------------#
+
+SV *
+H5Gget_info_by_name(loc_id, group_name, lapl_id)
+    hid_t loc_id
+    char *group_name
+    hid_t lapl_id
+
+    PREINIT:
+        herr_t ret;
+        HV *info_hash;
+        H5G_info_t *info;
+    CODE:
+        info = (H5G_info_t *)malloc(sizeof(H5G_info_t));
+        ret = H5Gget_info_by_name(loc_id, group_name, info, lapl_id);
+        if (ret < 0) {
+            RETVAL = newSViv(ret);
+        }
+        else {
+            info_hash = (HV *) sv_2mortal((SV *) newHV ());
+            hv_store( info_hash, "nlinks",        6, newSVuv( info->nlinks ),       0 );
+            hv_store( info_hash, "max_corder",   10, newSViv( info->max_corder ),   0 );
+            hv_store( info_hash, "storage_type", 12, newSViv( info->storage_type ), 0 );
+            hv_store( info_hash, "mounted",       7, newSVuv( info->mounted ),      0 );
+            RETVAL = newRV((SV *)info_hash);
+        }
+        free(info);
+    OUTPUT:
+        RETVAL
+
+#----------------------------------------------------------------------------#
+
+hid_t
+H5Gopen(loc_id, name, gapl_id)
+	hid_t loc_id
+	char *name
+    hid_t gapl_id
+
+	CODE:
+		RETVAL = H5Gopen2(loc_id, name, gapl_id);
+	OUTPUT:
+		RETVAL
+
 
 #############################################################################
 # H5A API
 #############################################################################
 
-hid_t
-H5Aopen_by_name(loc_id, obj_name, attr_name, aapl_id, lapl_id)
-    hid_t loc_id
-	char *obj_name
-	char *attr_name
-	hid_t aapl_id
-	hid_t lapl_id
-
-#---------------------------------------------------------------------------#
-
-hid_t
-H5Aopen_by_idx(loc_id, obj_name, idx_type, order, n, aapl_id, lapl_id)
-    hid_t loc_id
-	char *obj_name
-    H5_index_t idx_type
-    H5_iter_order_t order
-    hsize_t n
-	hid_t aapl_id
-	hid_t lapl_id
-
-#---------------------------------------------------------------------------#
-
 herr_t
 H5Aclose(attr_id)
 	hid_t attr_id
 
+	CODE:
+		RETVAL = H5Aclose(attr_id);
+	OUTPUT:
+		RETVAL
+
 #---------------------------------------------------------------------------#
 
-hid_t
-H5Aget_space(attr_id)
-	hid_t attr_id
+htri_t
+H5Aexists(obj_id, attr_name)
+    hid_t obj_id
+	char *attr_name
 
-#---------------------------------------------------------------------------#
+	CODE:
+		RETVAL = H5Aexists(obj_id, attr_name);
+	OUTPUT:
+		RETVAL
 
-hid_t
-H5Aget_type(attr_id)
-	hid_t attr_id
+#----------------------------------------------------------------------------#
+
+htri_t
+H5Aexists_by_name(loc_id, obj_name, attr_name, lapl_id)
+    hid_t loc_id
+	char *obj_name
+	char *attr_name
+    hid_t lapl_id
+
+	CODE:
+		RETVAL = H5Aexists_by_name(loc_id, obj_name, attr_name, lapl_id);
+	OUTPUT:
+		RETVAL
+
+#----------------------------------------------------------------------------#
+
+SV *
+H5Aget_info(attr_id)
+    hid_t attr_id
+
+    PREINIT:
+        herr_t ret;
+        HV *info_hash;
+        H5A_info_t *info;
+    CODE:
+        info = (H5A_info_t *)malloc(sizeof(H5A_info_t));
+        ret  = H5Aget_info(attr_id, info);
+        if (ret < 0) {
+            RETVAL = newSViv(ret);
+        }
+        else {
+            info_hash = (HV *) sv_2mortal((SV *) newHV ());
+            hv_store( info_hash, "corder_valid", 12, newSVuv( info->corder_valid ), 0 );
+            hv_store( info_hash, "corder",        6, newSVuv( info->corder ),       0 );
+            hv_store( info_hash, "cset",          4, newSViv( info->cset ),         0 );
+            hv_store( info_hash, "data_size",     9, newSVuv( info->data_size ),    0 );
+            RETVAL = newRV((SV *)info_hash);
+        }
+        free(info);
+    OUTPUT:
+        RETVAL
+
+#----------------------------------------------------------------------------#
+
+SV *
+H5Aget_info_by_idx(loc_id, obj_name, idx_type, order, n, lapl_id)
+    hid_t loc_id
+    char *obj_name
+    H5_index_t idx_type
+    H5_iter_order_t order
+    hsize_t n
+    hid_t lapl_id
+
+    PREINIT:
+        herr_t ret;
+        HV *info_hash;
+        H5A_info_t *info;
+    CODE:
+        info = (H5A_info_t *)malloc(sizeof(H5A_info_t));
+        ret  = H5Aget_info_by_idx(loc_id, obj_name, idx_type, order, n, info, lapl_id);
+        if (ret < 0) {
+            RETVAL = newSViv(ret);
+        }
+        else {
+            info_hash = (HV *) sv_2mortal((SV *) newHV ());
+            hv_store( info_hash, "corder_valid", 12, newSVuv( info->corder_valid ), 0 );
+            hv_store( info_hash, "corder",        6, newSVuv( info->corder ),       0 );
+            hv_store( info_hash, "cset",          4, newSViv( info->cset ),         0 );
+            hv_store( info_hash, "data_size",     9, newSVuv( info->data_size ),    0 );
+            RETVAL = newRV((SV *)info_hash);
+        }
+        free(info);
+    OUTPUT:
+        RETVAL
+
+#----------------------------------------------------------------------------#
+
+SV *
+H5Aget_info_by_name(loc_id, obj_name, attr_name, lapl_id)
+    hid_t loc_id
+    char *obj_name
+    char *attr_name
+    hid_t lapl_id
+
+    PREINIT:
+        herr_t ret;
+        HV *info_hash;
+        H5A_info_t *info;
+    CODE:
+        info = (H5A_info_t *)malloc(sizeof(H5A_info_t));
+        ret  = H5Aget_info_by_name(loc_id, obj_name, attr_name, info, lapl_id);
+        if (ret < 0) {
+            RETVAL = newSViv(ret);
+        }
+        else {
+            info_hash = (HV *) sv_2mortal((SV *) newHV ());
+            hv_store( info_hash, "corder_valid", 12, newSVuv( info->corder_valid ), 0 );
+            hv_store( info_hash, "corder",        6, newSVuv( info->corder ),       0 );
+            hv_store( info_hash, "cset",          4, newSViv( info->cset ),         0 );
+            hv_store( info_hash, "data_size",     9, newSVuv( info->data_size ),    0 );
+            RETVAL = newRV((SV *)info_hash);
+        }
+        free(info);
+    OUTPUT:
+        RETVAL
 
 #---------------------------------------------------------------------------#
 
@@ -355,6 +444,73 @@ H5Aget_name(attr_id)
         free(name);
     OUTPUT:
         RETVAL
+
+#---------------------------------------------------------------------------#
+
+hid_t
+H5Aget_space(attr_id)
+	hid_t attr_id
+
+	CODE:
+		RETVAL = H5Aget_space(attr_id);
+	OUTPUT:
+		RETVAL
+
+#---------------------------------------------------------------------------#
+
+hid_t
+H5Aget_type(attr_id)
+	hid_t attr_id
+
+	CODE:
+		RETVAL = H5Aget_type(attr_id);
+	OUTPUT:
+		RETVAL
+
+#----------------------------------------------------------------------------#
+
+hid_t
+H5Aopen(obj_id, attr_name, aapl_id)
+    hid_t obj_id
+	char *attr_name
+	hid_t aapl_id
+
+	CODE:
+		RETVAL = H5Aopen(obj_id, attr_name, aapl_id);
+	OUTPUT:
+		RETVAL
+
+#---------------------------------------------------------------------------#
+
+hid_t
+H5Aopen_by_idx(loc_id, obj_name, idx_type, order, n, aapl_id, lapl_id)
+    hid_t loc_id
+	char *obj_name
+    H5_index_t idx_type
+    H5_iter_order_t order
+    hsize_t n
+	hid_t aapl_id
+	hid_t lapl_id
+
+	CODE:
+		RETVAL = H5Aopen_by_idx(loc_id, obj_name, idx_type, order, n, aapl_id, lapl_id);
+	OUTPUT:
+		RETVAL
+
+#----------------------------------------------------------------------------#
+
+hid_t
+H5Aopen_by_name(loc_id, obj_name, attr_name, aapl_id, lapl_id)
+    hid_t loc_id
+	char *obj_name
+	char *attr_name
+	hid_t aapl_id
+	hid_t lapl_id
+
+	CODE:
+		RETVAL = H5Aopen_by_name(loc_id, obj_name, attr_name, aapl_id, lapl_id);
+	OUTPUT:
+		RETVAL
 
 #---------------------------------------------------------------------------#
 

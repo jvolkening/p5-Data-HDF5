@@ -9,6 +9,7 @@ predefined_types.list
 README.md
 t/00_H5F.t
 t/01_H5G.t
+t/02_H5A.t
 t/99_HDF5.t
 t/test.h5
 typemap

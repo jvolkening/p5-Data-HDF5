@@ -19,20 +19,26 @@ my @functions = qw/
     H5Fget_name
     H5Fopen
 
-    H5Gcreate
-    H5Gopen
     H5Gclose
+    H5Gcreate
     H5Gget_create_plist
     H5Gget_info
-    H5Gget_info_by_name
     H5Gget_info_by_idx
+    H5Gget_info_by_name
+    H5Gopen
 
-    H5Aopen_by_name
-    H5Aopen_by_idx
     H5Aclose
+    H5Aexists
+    H5Aexists_by_name
+    H5Aget_info
+    H5Aget_info_by_idx
+    H5Aget_info_by_name
+    H5Aget_name
     H5Aget_type
     H5Aget_space
-    H5Aget_name
+    H5Aopen
+    H5Aopen_by_idx
+    H5Aopen_by_name
     H5Aread
 
     H5Dread
@@ -347,9 +353,13 @@ sub AUTOLOAD {
     my $constname;
     our $AUTOLOAD;
     ($constname = $AUTOLOAD) =~ s/.*:://;
+    # uncoverable branch true
     croak "&Data::HDF5::constant not defined" if $constname eq 'constant';
     my ($error, $val) = constant($constname);
-    if ($error) { croak $error; }
+    # uncoverable branch true
+    if ($error) {
+        croak $error;
+    }
     {
         no strict 'refs';
 	    *$AUTOLOAD = sub { $val };

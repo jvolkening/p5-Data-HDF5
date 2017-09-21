@@ -30,6 +30,7 @@ my $apl = H5Fget_access_plist($file);
 my $cls = H5Pget_class($apl);
 ok( H5Pequal($cls, H5P_FILE_ACCESS) == 1,
     "get good file access plist" );
+H5Pclose($apl);
 ok( H5Fget_intent($file) == H5F_ACC_RDONLY,
     "get good file intent" );
 ok( H5Fget_name($file) eq FN,
@@ -60,6 +61,7 @@ ok( H5Fflush($new, H5F_SCOPE_GLOBAL) >= 0,
     "flush new file" );
 ok( H5Fclose($new) >= 0,
     "close new file" );
+
 
 done_testing();
 
