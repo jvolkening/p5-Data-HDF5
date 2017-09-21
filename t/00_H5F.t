@@ -18,11 +18,22 @@ use constant FN => 'test.h5';
 require_ok( "Data::HDF5" );
 
 # H5Fopen
+# H5Fget_access_plist
+# H5Fget_intent
+# H5Fget_name
 # H5Fclose
 
 my $file = H5Fopen(FN, H5F_ACC_RDONLY, H5P_DEFAULT);
 ok( $file >= 0,
     "open good file" );
+my $apl = H5Fget_access_plist($file);
+my $cls = H5Pget_class($apl);
+ok( H5Pequal($cls, H5P_FILE_ACCESS) == 1,
+    "get good file access plist" );
+ok( H5Fget_intent($file) == H5F_ACC_RDONLY,
+    "get good file intent" );
+ok( H5Fget_name($file) eq FN,
+    "get good filename" );
 ok( H5Fclose($file) >= 0,
     "close good file" );
 

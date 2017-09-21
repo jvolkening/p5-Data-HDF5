@@ -21,6 +21,16 @@ INCLUDE: const-xs.inc
 # H5F API
 #############################################################################
 
+herr_t
+H5Fclose(file_id)
+	hid_t file_id
+
+    CODE:
+        RETVAL = H5Fclose(file_id);
+    OUTPUT:
+        RETVAL
+
+#---------------------------------------------------------------------------#
 
 hid_t
 H5Fcreate(name, flags, fcpl_id, fapl_id)
@@ -34,6 +44,80 @@ H5Fcreate(name, flags, fcpl_id, fapl_id)
     OUTPUT:
         RETVAL
         
+#---------------------------------------------------------------------------#
+
+herr_t
+H5Fflush(file_id, scope)
+	hid_t file_id
+	H5F_scope_t scope
+
+    CODE:
+        RETVAL = H5Fflush(file_id, scope);
+    OUTPUT:
+        RETVAL
+
+#---------------------------------------------------------------------------#
+
+hid_t
+H5Fget_access_plist(file_id)
+	hid_t file_id
+
+    CODE:
+        RETVAL = H5Fget_access_plist(file_id);
+    OUTPUT:
+        RETVAL
+
+#---------------------------------------------------------------------------#
+
+SV *
+H5Fget_intent(file_id)
+    hid_t file_id
+
+    INIT:
+        unsigned *intent;
+        SV *data;
+
+    CODE:
+        intent = (unsigned *)malloc(sizeof(unsigned));
+        H5Fget_intent(
+            file_id,
+            intent
+        );
+
+        data = newSVuv(*intent);
+        RETVAL = data;
+        free(intent);
+    OUTPUT:
+        RETVAL
+
+#---------------------------------------------------------------------------#
+
+SV *
+H5Fget_name(obj_id)
+    hid_t obj_id
+
+    INIT:
+        char *name;
+        SV *data;
+
+    CODE:
+        size_t size = H5Fget_name(
+            obj_id,
+            NULL,
+            0
+        ) + 1;
+        name = (char *)malloc(sizeof(char)*size);
+        H5Fget_name(
+            obj_id,
+            name,
+            size
+        );
+
+        data = newSVpv(name, 0);
+        RETVAL = data;
+        free(name);
+    OUTPUT:
+        RETVAL
 
 #---------------------------------------------------------------------------#
 
@@ -45,29 +129,6 @@ H5Fopen(name, flags, fapl_id)
 
     CODE:
         RETVAL = H5Fopen(name, flags, fapl_id);
-    OUTPUT:
-        RETVAL
-
-#---------------------------------------------------------------------------#
-
-herr_t
-H5Fclose(file_id)
-	hid_t file_id
-
-    CODE:
-        RETVAL = H5Fclose(file_id);
-    OUTPUT:
-        RETVAL
-
-#---------------------------------------------------------------------------#
-		
-herr_t
-H5Fflush(file_id, scope)
-	hid_t file_id
-	H5F_scope_t scope
-
-    CODE:
-        RETVAL = H5Fflush(file_id, scope);
     OUTPUT:
         RETVAL
 
@@ -956,10 +1017,21 @@ H5Sget_simple_extent_dims(space_id)
 # H5P API
 #############################################################################
 
-
 herr_t
 H5Pclose(plist)
 	hid_t plist
+
+#---------------------------------------------------------------------------#
+
+hid_t
+H5Pcopy(plist)
+	hid_t plist
+
+#---------------------------------------------------------------------------#
+
+hid_t
+H5Pcreate(cls_id)
+	hid_t cls_id
 
 #---------------------------------------------------------------------------#
 
@@ -967,5 +1039,11 @@ htri_t
 H5Pequal(id1, id2)
 	hid_t id1
 	hid_t id2
+
+#---------------------------------------------------------------------------#
+
+hid_t
+H5Pget_class(plist)
+	hid_t plist
 
 #---------------------------------------------------------------------------#

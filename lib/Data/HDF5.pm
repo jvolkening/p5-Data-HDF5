@@ -11,10 +11,13 @@ our @ISA = qw(Exporter);
 
 my @functions = qw/
 
-    H5Fcreate
-    H5Fopen
     H5Fclose
+    H5Fcreate
     H5Fflush
+    H5Fget_access_plist
+    H5Fget_intent
+    H5Fget_name
+    H5Fopen
 
     H5Gcreate
     H5Gopen
@@ -61,7 +64,10 @@ my @functions = qw/
     H5Sget_simple_extent_npoints
 
     H5Pclose
+    H5Pcopy
+    H5Pcreate
     H5Pequal
+    H5Pget_class
 
 /;
 
