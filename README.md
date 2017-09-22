@@ -1,7 +1,7 @@
 Data::HDF5
 ==========
-[![Build Status](https://travis-ci.org/jvolkening/p5-Data-HDF5.svg?branch=HDF5_1.10)](https://travis-ci.org/jvolkening/p5-Data-HDF5)
-[![Coverage Status](https://coveralls.io/repos/github/jvolkening/p5-Data-HDF5/badge.svg?branch=HDF5_1.10)](https://coveralls.io/github/jvolkening/p5-Data-HDF5?branch=HDF5_1.10)
+[![Build Status](https://travis-ci.org/jvolkening/p5-Data-HDF5.svg?branch=master)](https://travis-ci.org/jvolkening/p5-Data-HDF5)
+[![Coverage Status](https://coveralls.io/repos/github/jvolkening/p5-Data-HDF5/badge.svg?branch=master)](https://coveralls.io/github/jvolkening/p5-Data-HDF5?branch=master)
 
 Bindings to the HDF5 data storage library
 

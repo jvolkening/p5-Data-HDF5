@@ -341,7 +341,7 @@ our %EXPORT_TAGS = (
 
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
-our $VERSION = '0.001';
+our $VERSION = '0.002';
 
 require XSLoader;
 XSLoader::load('Data::HDF5', $VERSION);
