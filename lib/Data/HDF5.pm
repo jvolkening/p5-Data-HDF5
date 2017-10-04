@@ -59,8 +59,10 @@ my @functions = qw/
     H5Tget_strpad
     H5Tget_super
 
+    H5Lexists
     H5Lget_name_by_idx
 
+    H5Oexists_by_name
     H5Oget_info
     H5Oopen
 

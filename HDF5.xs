@@ -1036,6 +1036,19 @@ H5Lget_name_by_idx(loc_id, group_name, index_field, order, n, lapl_id)
     OUTPUT:
             RETVAL
 
+#----------------------------------------------------------------------------#
+
+htri_t
+H5Lexists(loc_id, name, lapl_id)
+    hid_t loc_id
+	char *name
+    hid_t lapl_id
+
+	CODE:
+		RETVAL = H5Lexists(loc_id, name, lapl_id);
+	OUTPUT:
+		RETVAL
+
 
 #############################################################################
 # H5O API
@@ -1103,6 +1116,21 @@ H5Oopen(loc_id, name, lapl_id)
 	hid_t loc_id
 	char *name
     hid_t lapl_id
+
+#---------------------------------------------------------------------------#
+
+htri_t
+H5Oexists_by_name(loc_id, obj_name, lapl_id)
+    hid_t loc_id
+	char *obj_name
+    hid_t lapl_id
+
+	CODE:
+		RETVAL = H5Oexists_by_name(loc_id, obj_name, lapl_id);
+	OUTPUT:
+		RETVAL
+
+#----------------------------------------------------------------------------#
 
 
 #############################################################################
