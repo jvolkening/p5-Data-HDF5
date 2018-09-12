@@ -148,7 +148,7 @@ WriteMakefile(
     },
     PREREQ_PM     => {},
 
-    LIBS => '-lhdf5 -lhdf5_hl',
+    LIBS => '-lhdf5 -lhdf5_hl -lhdf5_serial -lhdf5_serial_hl',
     INC  => '-I. -I/usr/include/hdf5/serial',
     META_MERGE => {
         'meta-spec' => { version => 2 },
