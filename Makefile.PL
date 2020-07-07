@@ -145,6 +145,7 @@ WriteMakefile(
     CONFIGURE_REQUIRES => {
         'ExtUtils::MakeMaker' => 0,
         'ExtUtils::Constant'  => 0,
+        'Test::More'          => 0,
     },
     PREREQ_PM     => {},
 
