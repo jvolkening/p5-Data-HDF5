@@ -5,6 +5,7 @@ use warnings;
 use 5.012;
 
 use Test::More;
+use Test::Output;
 use FindBin;
 use Data::Dumper;
 use File::Temp qw/tempfile/;
@@ -15,6 +16,8 @@ chdir $FindBin::Bin;
 
 use constant FN => 'test.h5';
 
+my $ret = ''; # use to capture stderr_like outputs
+
 require_ok( "Data::HDF5" );
 
 my $file = H5Fopen(FN, H5F_ACC_RDONLY, H5P_DEFAULT);
@@ -24,15 +27,19 @@ my $file = H5Fopen(FN, H5F_ACC_RDONLY, H5P_DEFAULT);
 my $g_id = H5Gopen($file, "/Analyses/Basecall_1D_000", H5P_DEFAULT);
 ok( $g_id >= 0,
     "open good group" );
-ok( H5Gopen($file, "/FooBar", H5P_DEFAULT) < 0,
-    "open bad group" );
+stderr_like { $ret = H5Gopen($file, "/FooBar", H5P_DEFAULT) }
+    qr/Object not found/im,
+    "warned on opening bad group";
+ok ($ret < 0, "opening bad group returned negative value" );
 
 # H5Gget_info
 
 ok( my $info = H5Gget_info($g_id),
     "get good group info" );
-ok( H5Gget_info(-1) < 0,
-    "get bad group info" );
+stderr_like { H5Gget_info(-1) }
+    qr/Invalid arguments to routine/im,
+    "warned on bad group info";
+ok ($ret < 0, "bad group info returned negative value" );
 ok( $info->{nlinks} == 2,
     "correct nlinks" );
 ok( $info->{mounted} == 0,
@@ -44,8 +51,10 @@ ok( $info = H5Gget_info_by_idx($g_id, '.', H5_INDEX_NAME, H5_ITER_INC, 0, H5P_DE
     "get good group info by index" );
 ok( $info->{nlinks} == 1,
     "correct subgroup nlinks" );
-ok( H5Gget_info_by_idx($g_id, '.', H5_INDEX_NAME, H5_ITER_INC, 99, H5P_DEFAULT) == -1,
-    "get group info by bad index" );
+stderr_like { $ret = H5Gget_info_by_idx($g_id, '.', H5_INDEX_NAME, H5_ITER_INC, 99, H5P_DEFAULT) }
+    qr/Out of range/im,
+    "warned on group info by bad index";
+ok ($ret < 0, "group info by bad index returned negative value" );
 
 # H5Gget_info_by_name
 
@@ -53,8 +62,10 @@ ok( $info = H5Gget_info_by_name($g_id, 'BaseCalled_template', H5P_DEFAULT),
     "get good group info by name" );
 ok( $info->{nlinks} == 1,
     "correct subgroup nlinks" );
-ok( H5Gget_info_by_name($g_id, 'BarFoo', H5P_DEFAULT) == -1,
-    "get group info by bad name" );
+stderr_like { H5Gget_info_by_name($g_id, 'BarFoo', H5P_DEFAULT) }
+    qr/Object not found/im,
+    "warned on group info by bad name";
+ok ($ret < 0, "group info by bad name returned negative value" );
 
 ok (H5Gclose($g_id) >= 0,
     "close good group" );
@@ -86,9 +97,9 @@ ok( $g_new >= 0,
 my $p = H5Gget_create_plist($g_new);
 ok( $p >= 0,
     "get creation property list" );
-H5Pclose($p);
-ok( H5Pequal( $p, H5P_DEFAULT ),
+my $cls = H5Pget_class($p);
+ok( $ret = H5Pequal( $cls, H5P_GROUP_CREATE ) > 0,
     "got correct property list" );
-
+ok( H5Pclose($p) >= 0, 'closed property list' );
 done_testing();
 

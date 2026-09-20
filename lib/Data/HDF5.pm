@@ -58,6 +58,7 @@ my @functions = qw/
     H5Tget_size
     H5Tget_strpad
     H5Tget_super
+    H5Tequal
 
     H5Lexists
     H5Lget_name_by_idx
@@ -118,6 +119,8 @@ my @constants = qw/
     H5P_DEFAULT
     H5P_FILE_CREATE
     H5P_FILE_ACCESS
+    H5P_GROUP_CREATE
+    H5P_GROUP_ACCESS
     H5P_DATASET_CREATE
     H5P_DATASET_XFER
     H5P_FILE_MOUNT
@@ -149,7 +152,6 @@ my @constants = qw/
     H5I_DATASPACE
     H5I_DATASET
     H5I_ATTR
-    H5I_REFERENCE
     H5I_VFL
     H5I_GENPROP_CLS
     H5I_GENPROP_LST
@@ -343,7 +345,7 @@ our %EXPORT_TAGS = (
 
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
-our $VERSION = '0.002001';
+our $VERSION = '0.003';
 
 require XSLoader;
 XSLoader::load('Data::HDF5', $VERSION);
@@ -364,7 +366,7 @@ sub AUTOLOAD {
     }
     {
         no strict 'refs';
-	    *$AUTOLOAD = sub { $val };
+        *$AUTOLOAD = sub { $val };
     }
     goto &$AUTOLOAD;
 }

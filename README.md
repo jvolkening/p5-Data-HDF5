@@ -20,6 +20,15 @@ This notification will be removed when the codebase reaches a stable state.
 The current goal is to properly bind and thoroughly test a core subset of
 functions, after which additional functionality will be added over time.
 
+NOTE
+----
+
+This module uses the `-DH5_USE_110_API` flag during compilation to ensure compatibility
+with newer releases of HDF5. This flag pins the API at that of version 1.10. The benefit
+is that you can compile and use this module with newer versions of HDF5. The downside is
+that you can't make use of the new additions/improvements in those newer versions. At
+some point this module may be updated to the newer API.
+
 INSTALLATION
 ------------
 

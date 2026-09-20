@@ -1,6 +1,7 @@
 use 5.008;
 use ExtUtils::MakeMaker;
 use ExtUtils::Constant qw/WriteConstants/;
+use Config;
 
 my @predefined_types;
 open my $types, '<', 'predefined_types.list';
@@ -27,6 +28,8 @@ my @names = qw/
     H5P_DATASET_CREATE
     H5P_DATASET_XFER
     H5P_FILE_MOUNT
+    H5P_GROUP_CREATE
+    H5P_GROUP_ACCESS
     H5S_UNLIMITED
     H5S_SELECT_SET
     H5D_FILL_TIME_ALLOC
@@ -75,7 +78,6 @@ my @enums = qw/
     H5I_DATASPACE
     H5I_DATASET
     H5I_ATTR
-    H5I_REFERENCE
     H5I_VFL
     H5I_GENPROP_CLS
     H5I_GENPROP_LST
@@ -141,16 +143,22 @@ WriteMakefile(
     AUTHOR        => q{Jeremy Volkening <jdv@base2bio.com>},
     VERSION_FROM  => 'lib/Data/HDF5.pm',
     ABSTRACT_FROM => 'lib/Data/HDF5.pm',
-    LICENSE       => 'GPL_3',
+    LICENSE       => 'unknown',
     CONFIGURE_REQUIRES => {
         'ExtUtils::MakeMaker' => 0,
         'ExtUtils::Constant'  => 0,
         'Test::More'          => 0,
     },
+    TEST_REQUIRES => {
+        'Test::Output' => 0,
+    },
     PREREQ_PM     => {},
 
     LIBS => '-lhdf5 -lhdf5_hl -lhdf5_serial -lhdf5_serial_hl',
     INC  => '-I. -I/usr/include/hdf5/serial',
+    # this is needed to enforce 1.10 API on newer library versions
+    # TODO: update this module to work with newer HDF5 releases
+    CCFLAGS      => "$Config{ccflags} -DH5_USE_110_API",
     META_MERGE => {
         'meta-spec' => { version => 2 },
         resources => {
@@ -168,6 +176,10 @@ WriteMakefile(
         '*.gcov',
         '*.gcno',
         '*.gcda',
+        '*.bs',
+        '*.c',
+        '*.xsc',
+        '*.o',
         'cover_db',
     ] },
 );

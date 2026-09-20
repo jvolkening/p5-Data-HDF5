@@ -5,6 +5,7 @@ use warnings;
 use 5.012;
 
 use Test::More;
+use Test::Output;
 use FindBin;
 use Data::Dumper;
 
@@ -16,6 +17,8 @@ chdir $FindBin::Bin;
 
 use constant FN => 'test.h5';
 
+my $ret = ''; # use to capture stderr_like outputs
+
 require_ok( "Data::HDF5" );
 
 # H5Fopen
@@ -23,8 +26,10 @@ require_ok( "Data::HDF5" );
 my $file = H5Fopen(FN, H5F_ACC_RDONLY, H5P_DEFAULT);
 ok( $file >= 0,
     "open good file" );
-ok( H5Fopen('foobar', H5F_ACC_RDONLY, H5P_DEFAULT) < 0,
-    "don't open bad filename" );
+stderr_like { $ret = H5Fopen('foobar', H5F_ACC_RDONLY, H5P_DEFAULT) }
+    qr/Unable to open file/im,
+    "warned on opening bad filename";
+ok ($ret < 0, "opening bad filename returned negative value");
 
 # H5Gopen
 
@@ -33,8 +38,10 @@ ok ($root >= 0,
     "open root" );
 ok( H5Gopen($file,"/Analyses", H5P_DEFAULT) >= 0,
     "open subgroup" );
-ok( H5Gopen($file,"/Foo", H5P_DEFAULT) < 0,
-    "don't open nonexistent path" );
+stderr_like { $ret = H5Gopen($file,"/Foo", H5P_DEFAULT) }
+    qr/Object not found/im,
+    "warned on opening nonexistent path";
+ok ($ret < 0, "opening nonexistent path returned negative value");
 
 # H5Gget_info
 
@@ -77,33 +84,32 @@ for my $i (0..$info->{nlinks}-1) {
 }
 
 #my $attr = H5Aopen_by_name( $root, 'UniqueGlobalKey/context_tags', 'flowcell', H5P_DEFAULT, H5P_DEFAULT );
-my $g = H5Gopen($file,"/Raw/Reads/Read_1107", H5P_DEFAULT);
 #my $g = H5Gopen($file,"/Analyses/Segmentation_000/Summary/segmentation", H5P_DEFAULT);
 #my $attr = H5Aopen_by_name( $root, '.', 'file_version', H5P_DEFAULT, H5P_DEFAULT );
-say "GRP:", $g;
-my $attr = H5Aopen_by_name( $g, '.', 'duration', H5P_DEFAULT, H5P_DEFAULT );
-say "ATTR:", $attr;
-my $type = H5Aget_type($attr);
-say "TYPE:", $type;
-my $class = H5Tget_class($type);
-say "CLASS:", $class;
-my $native = H5Tget_native_type($type, H5T_DIR_ASCEND);
-say "NATIVE:", $native;
-my $val = H5Aread($attr);
-say Dumper $val;
-#say "VAL:", $val;
+my $g = H5Gopen($file,"/Raw/Reads/Read_1107", H5P_DEFAULT);
 ok( $g >= 0, "open subgroup" );
+my $attr = H5Aopen_by_name( $g, '.', 'duration', H5P_DEFAULT, H5P_DEFAULT );
+my $type = H5Aget_type($attr);
+ok( H5Tequal($type, H5T_STD_U32LE), "duration type is U32LE" );
+my $class = H5Tget_class($type);
+ok( $class == H5T_INTEGER, "duration class is H5T_INTEGER" );
+my $native = H5Tget_native_type($type, H5T_DIR_ASCEND);
+ok( H5Tequal($native, H5T_NATIVE_UINT), "duration native type is UINT" );
+
+my $val = H5Aread($attr);
+ok( ref($val) eq 'ARRAY', "H5Aread returned arrayref" );
+ok( $val->[0] == 11863, "H5Aread returned correct value" );
 my $ds = H5Dopen($g, 'Signal', H5P_DEFAULT);
 ok( $ds >= 0, "open dataset" );
 $type = H5Dget_type($ds);
-say "TYPE:", $type;
+ok( H5Tequal($type, H5T_STD_I16LE), "signal type is I16LE" );
 $class = H5Tget_class($type);
-say "CLASS:", $class;
+ok( $class == H5T_INTEGER, "signal class is H5T_INTEGER" );
 $native = H5Tget_native_type($type, H5T_DIR_ASCEND);
-say "NATIVE:", $native;
+ok( H5Tequal($native, H5T_NATIVE_SHORT), "signal native type is SHORT" );
 my $val2 = H5Dread($ds);
-say Dumper $val2;
-say "VAL2:", $val2->[0];
+ok ($val2->[0] == 534, "read first value");
+ok ($val2->[-1] == 565, "read last value");
 
 # H5Fclose
 

@@ -1,6 +1,12 @@
+Copyright 2016-2026 Jeremy Volkening
+
+This package was originally derived from the HDFPerl module. It has probably
+changed beyond recognition at this point, but the license of the original
+module still applies. The exact text of the original license follows:
+
+
 Copyright Notice and License Terms for HDFPerl 
 -----------------------------------------------------------------------------
-
 
 HDFPerl
 Copyright 2006-2008 by The HDF Group (THG).

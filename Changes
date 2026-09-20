@@ -1,5 +1,12 @@
 Revision history for Perl library Data::HDF5
 
+0.003
+    - Add missing build dep
+    - Add a few additional functions
+    - Add '-DH5_USE_110_API' compiler flag to work with newer libhdf5 versions
+    - Clean up tests and a few more
+    - fix license
+
 0.002001
     - Add 'serial' libs in Makefile
 

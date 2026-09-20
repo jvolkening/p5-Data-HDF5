@@ -5,6 +5,7 @@ use warnings;
 use 5.012;
 
 use Test::More;
+use Test::Output;
 use FindBin;
 use Data::Dumper;
 use File::Temp qw/tempfile/;
@@ -39,8 +40,13 @@ my $attr = H5Aopen($file, "file_version", H5P_DEFAULT);
 ok ($attr >= 0,
     "open real attribute" );
 H5Aclose($attr);
-ok( H5Aopen($file, "foobar", H5P_DEFAULT) < 0,
-    "don't open fake attribute" );
+
+my $ret = ''; # use to capture stderr_like outputs
+
+stderr_like { $ret = H5Aopen($file, "foobar", H5P_DEFAULT) }
+    qr/Object not found/mi,
+    "warned on opening fake attribute";
+ok ($ret < 0, "fake attribute returned negative value" );
 
 $attr = H5Aopen_by_name($file, "/", "file_version", H5P_DEFAULT, H5P_DEFAULT);
 ok ($attr >= 0,
@@ -65,8 +71,9 @@ H5Sclose($spc);
 
 ok( my $info = H5Aget_info($attr),
     "get attribute info" );
-ok(H5Aget_info(-1) < 0,
-    "get bad attribute info" );
+stderr_like { $ret = H5Aget_info(-1) } qr/Inappropriate type/mi,
+    'warned on bad attribute info';
+ok ($ret < 0, "bad attribute info returned negative value" );
 ok( $info->{cset} == H5T_CSET_ASCII,
     "get attribute cset" );
 ok( $info->{data_size} == 8,
@@ -74,8 +81,10 @@ ok( $info->{data_size} == 8,
 
 ok( $info = H5Aget_info_by_name($file, "Analyses/Basecall_1D_000", "name", H5P_DEFAULT),
     "get attribute info by name" );
-ok(H5Aget_info_by_name($file, "foo", "bar", H5P_DEFAULT) < 0,
-    "get bad attribute info by name" );
+stderr_like {$ret = H5Aget_info_by_name($file, "foo", "bar", H5P_DEFAULT)}
+    qr/Object not found/mi,
+    'warned on bad attribute info by name';
+ok ($ret < 0, "bad attribute info by name returned negative value" );
 ok( $info->{cset} == H5T_CSET_ASCII,
     "get attribute cset" );
 ok( $info->{data_size} == 25,
@@ -83,8 +92,10 @@ ok( $info->{data_size} == 25,
 
 ok( $info = H5Aget_info_by_idx($file, '/', H5_INDEX_NAME, H5_ITER_INC, 0, H5P_DEFAULT),
     "get attribute info by idx" );
-ok( H5Aget_info_by_idx($file, '/', H5_INDEX_NAME, H5_ITER_INC, 99, H5P_DEFAULT) < 0,
-    "get bad attribute info by idx" );
+stderr_like {$ret = H5Aget_info_by_idx($file, '/', H5_INDEX_NAME, H5_ITER_INC, 99, H5P_DEFAULT)}
+    qr/Invalid arguments to routine/mi,
+    'warned on bad attribute info by idx';
+ok ($ret < 0, "bad attribute info by index returned negative value" );
 ok( $info->{cset} == H5T_CSET_ASCII,
     "get attribute cset" );
 ok( $info->{data_size} == 8,
@@ -104,6 +115,18 @@ $attr = H5Aopen_by_name(
 
 ok (abs( H5Aread($attr)->[0] - 12.7461 ) < .01,
     "Read H5T_IEEE_F32LE" );
+H5Aclose($attr);
+
+$attr = H5Aopen_by_name(
+    $file,
+    "Analyses/Basecall_1D_000/Summary",
+    "return_status",
+    H5P_DEFAULT,
+    H5P_DEFAULT
+);
+
+ok (H5Aread($attr)->[0] eq 'Workflow successful',
+    "Read H5T_STRING 1" );
 H5Aclose($attr);
 
 $attr = H5Aopen_by_name(
@@ -148,7 +171,7 @@ $attr = H5Aopen_by_name(
     H5P_DEFAULT
 );
 ok ( H5Aread($attr)->[0] eq '1.7.14.1',
-    "Read H5T_STRING" );
+    "Read H5T_STRING 2" );
 H5Aclose($attr);
 
 done_testing();
