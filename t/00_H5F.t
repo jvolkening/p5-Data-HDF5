@@ -5,6 +5,7 @@ use warnings;
 use 5.012;
 
 use Test::More;
+use Test::Output;
 use FindBin;
 use Data::Dumper;
 use File::Temp qw/tempfile/;
@@ -23,6 +24,8 @@ require_ok( "Data::HDF5" );
 # H5Fget_name
 # H5Fclose
 
+my $ret = ''; # use to capture stderr_like outputs
+
 my $file = H5Fopen(FN, H5F_ACC_RDONLY, H5P_DEFAULT);
 ok( $file >= 0,
     "open good file" );
@@ -38,10 +41,13 @@ ok( H5Fget_name($file) eq FN,
 ok( H5Fclose($file) >= 0,
     "close good file" );
 
-ok( H5Fopen('foobar', H5F_ACC_RDONLY, H5P_DEFAULT) < 0,
-    "don't open bad filename" );
-ok( H5Fclose(-1) < 0,
-    "don't close bad fid" );
+stderr_like { $ret = H5Fopen('foobar', H5F_ACC_RDONLY, H5P_DEFAULT) }
+    qr/Unable to open file/im,
+    "warned on opening bad filename";
+ok ($ret < 0, "opening bad filename returned negative value" );
+stderr_like { $ret = H5Fclose(-1) }
+    qr/Invalid arguments to routine/im,
+    "closing bad fid returned negative value";
 
 #H5Fcreate
 #H5Fflush
