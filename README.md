@@ -13,7 +13,7 @@ HDFPerl demo package produced by the HDF Group. The current status is
 UNSTABLE! Function names may change and functionality may be added or removed.
 
 DO NOT USE this module in production code (or be willing to accept the
-conseuqences)!
+consequences)!
 
 This notification will be removed when the codebase reaches a stable state.
 
@@ -58,18 +58,7 @@ produced by the HDF Group. The original code was Copyright (C) 2006-2008 by
 The HDF Group (THG).
 
 The current codebase has been almost completely rewritten and little (if
-any) of the original code remains.
+any) of the original code remains. The code nevertheless remains under the
+license of the original package (see LICENSE file).
 
-This version is Copyright (C) 2015-2017 Jeremy Volkening <jdv@base2bio.com>
-
-This library is free software; you can redistribute it and/or modify it under
-the terms of the GNU Library General Public License as published by the Free
-Software Foundation; either version 3 of the License, or (at your option) any
-later version.
-
-This library is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-PARTICULAR PURPOSE.
-
-See the LICENSE file in the top-level directory of this distribution for the
-full license terms.
+This version is Copyright (C) 2015-2026 Jeremy Volkening.
