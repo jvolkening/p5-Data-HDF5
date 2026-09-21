@@ -2,6 +2,8 @@ use 5.008;
 use ExtUtils::MakeMaker;
 use ExtUtils::Constant qw/WriteConstants/;
 use Config;
+use IPC::Cmd qw/can_run/;
+use autodie;
 
 my @predefined_types;
 open my $types, '<', 'predefined_types.list';
@@ -10,6 +12,31 @@ while (my $line = <$types>) {
     push @predefined_types, $line;
 };
 close $types;
+
+
+# Use HDF5's compiler wrapper to find includes
+my $HDF5_CC = $ENV{HDF5_CC}
+    // can_run('h5cc')
+    // die "No h5cc found; do you have HDF5 development libraries"
+        . " installed?\n";
+
+my @hdf5_inc;
+open my $stream, '-|',
+    $HDF5_CC,
+    '-show',
+;
+while (my $line = <$stream>) {
+    chomp $line;
+    push @hdf5_inc,
+        grep { /^-I/ }
+        split( /\s+/, $line);
+}
+close $stream
+    or die "Error running HDF5_CC: $!\n";
+if (! scalar @hdf5_inc) {
+    die "No HDF5 includes found; do you have HDF5 development library"
+        . " installed?\n";
+}
 
 my @names = qw/
     H5F_ACC_TRUNC
@@ -155,7 +182,7 @@ WriteMakefile(
     PREREQ_PM     => {},
 
     LIBS => '-lhdf5 -lhdf5_hl -lhdf5_serial -lhdf5_serial_hl',
-    INC  => '-I. -I/usr/include/hdf5/serial',
+    INC  => join( ' ', '-I.', @hdf5_inc ),
     # this is needed to enforce 1.10 API on newer library versions
     # TODO: update this module to work with newer HDF5 releases
     CCFLAGS      => "$Config{ccflags} -DH5_USE_110_API",
