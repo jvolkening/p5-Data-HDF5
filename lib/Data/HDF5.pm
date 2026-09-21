@@ -377,22 +377,338 @@ __END__
 
 =head1 NAME
 
-Data::HDF5 - Perl wrappers for HDF5 libary
+Data::HDF5 - Perl wrappers for the HDF5 data storage library
 
 =head1 SYNOPSIS
 
-  use Data::HDF5;
+  use Data::HDF5 qw(:functions :constants);
 
-=head1 ABSTRACT
-
-Bindings to the HDF5 library 
+  my $file = H5Fopen($filename, H5F_ACC_RDONLY, H5P_DEFAULT);
+  my $group = H5Gopen($file, '/data', H5P_DEFAULT);
+  my $dataset = H5Dopen($group, 'values', H5P_DEFAULT);
+  my $values = H5Dread($dataset);
 
 =head1 DESCRIPTION
 
+Data::HDF5 provides thin Perl bindings to the HDF5 C library. The XS
+functions use HDF5 identifiers (integer handles) as arguments and return
+values. Unless noted otherwise, HDF5 status values are passed through
+unchanged: a negative value indicates failure, zero indicates false, and a
+positive value indicates success or true.
+
+Identifiers returned by open, create, copy, or get functions should be
+released with the corresponding C<close> function. C<H5Aread> and C<H5Dread>
+return array references. The current read implementations support
+one-dimensional integer, floating-point, and fixed-length string data.
+
+=head1 FUNCTIONS
+
+=head2 File functions
+
+=over 4
+
+=item H5Fclose($file_id)
+
+Close a file and return the HDF5 status code.
+
+=item H5Fcreate($name, $flags, $fcpl_id, $fapl_id)
+
+Create the file named by C<$name>, using the supplied file-creation and
+file-access property lists, and return its identifier.
+
+=item H5Fflush($file_id, $scope)
+
+Flush buffered data for a file. C<$scope> is normally
+C<H5F_SCOPE_LOCAL> or C<H5F_SCOPE_GLOBAL>.
+
+=item H5Fget_access_plist($file_id)
+
+Return the file-access property-list identifier associated with the file.
+The returned property list must be closed with C<H5Pclose>.
+
+=item H5Fget_intent($file_id)
+
+Return the file access flags, such as C<H5F_ACC_RDONLY> or C<H5F_ACC_RDWR>.
+
+=item H5Fget_name($obj_id)
+
+Return the name of the file containing the supplied object identifier.
+
+=item H5Fopen($name, $flags, $fapl_id)
+
+Open an existing file and return its identifier.
+
+=back
+
+=head2 Group functions
+
+=over 4
+
+=item H5Gclose($group_id)
+
+Close a group.
+
+=item H5Gcreate($loc_id, $name, $lcpl_id, $gcpl_id, $gapl_id)
+
+Create the group named by C<$name> below C<$loc_id> and return its
+identifier.
+
+=item H5Gget_create_plist($group_id)
+
+Return the group-creation property-list identifier.
+
+=item H5Gget_info($group_id)
+
+Return a hash reference containing C<nlinks>, C<max_corder>,
+C<storage_type>, and C<mounted> for the group.
+
+=item H5Gget_info_by_idx($loc_id, $group_name, $index_type, $order, $n, $lapl_id)
+
+Return group information for the group link at position C<$n> in
+C<$group_name>.
+
+=item H5Gget_info_by_name($loc_id, $group_name, $lapl_id)
+
+Return information for the group identified by C<$group_name>.
+
+=item H5Gopen($loc_id, $name, $gapl_id)
+
+Open a group by name and return its identifier.
+
+=back
+
+=head2 Attribute functions
+
+=over 4
+
+=item H5Aclose($attr_id)
+
+Close an attribute.
+
+=item H5Aexists($obj_id, $attr_name)
+
+Test whether C<$obj_id> has an attribute named C<$attr_name>.
+
+=item H5Aexists_by_name($loc_id, $obj_name, $attr_name, $lapl_id)
+
+Test whether the named object has the named attribute.
+
+=item H5Aget_info($attr_id)
+
+Return an attribute-information hash reference containing C<corder_valid>,
+C<corder>, C<cset>, and C<data_size>.
+
+=item H5Aget_info_by_idx($loc_id, $obj_name, $idx_type, $order, $n, $lapl_id)
+
+Return information for the attribute at index C<$n>.
+
+=item H5Aget_info_by_name($loc_id, $obj_name, $attr_name, $lapl_id)
+
+Return information for the named attribute.
+
+=item H5Aget_name($attr_id)
+
+Return the attribute name.
+
+=item H5Aget_space($attr_id)
+
+Return the attribute dataspace identifier.
+
+=item H5Aget_type($attr_id)
+
+Return the attribute datatype identifier.
+
+=item H5Aopen($obj_id, $attr_name, $aapl_id)
+
+Open the attribute named by C<$attr_name> on C<$obj_id>.
+
+=item H5Aopen_by_idx($loc_id, $obj_name, $idx_type, $order, $n, $aapl_id, $lapl_id)
+
+Open the attribute at index C<$n>.
+
+=item H5Aopen_by_name($loc_id, $obj_name, $attr_name, $aapl_id, $lapl_id)
+
+Open the named attribute.
+
+=item H5Aread($attr_id)
+
+Read an attribute and return an array reference containing its values.
+Multidimensional attributes and selections are not supported.
+
+=back
+
+=head2 Dataset functions
+
+=over 4
+
+=item H5Dread($dataset_id)
+
+Read a dataset and return an array reference containing its values.
+Multidimensional datasets and selections are not supported.
+
+=item H5Dopen($loc_id, $name, $dapl_id)
+
+Open the dataset named by C<$name> and return its identifier.
+
+=item H5Dclose($id)
+
+Close a dataset.
+
+=item H5Dget_space($id)
+
+Return the dataset dataspace identifier.
+
+=item H5Dget_type($id)
+
+Return the dataset datatype identifier.
+
+=back
+
+=head2 Datatype functions
+
+=over 4
+
+=item H5Tclose($id)
+
+Close a datatype identifier.
+
+=item H5Tcopy($id)
+
+Copy a datatype and return the new identifier.
+
+=item H5Tget_class($id)
+
+Return the datatype class, such as C<H5T_INTEGER>, C<H5T_FLOAT>, or
+C<H5T_STRING>.
+
+=item H5Tget_cset($id)
+
+Return the character set for a string datatype.
+
+=item H5Tget_native_type($id, $direction)
+
+Return a native representation of a datatype. C<$direction> is one of the
+C<H5T_DIR_*> constants.
+
+=item H5Tget_order($id)
+
+Return the byte order of a datatype.
+
+=item H5Tget_precision($id)
+
+Return datatype precision in bits.
+
+=item H5Tget_sign($id)
+
+Return the integer sign convention.
+
+=item H5Tget_size($id)
+
+Return the datatype size in bytes.
+
+=item H5Tget_strpad($id)
+
+Return the string padding mode.
+
+=item H5Tget_super($id)
+
+Return the parent datatype of a derived datatype.
+
+=item H5Tequal($id1, $id2)
+
+Compare two datatypes and return the HDF5 truth value.
+
+=back
+
+=head2 Link and object functions
+
+=over 4
+
+=item H5Lexists($loc_id, $name, $lapl_id)
+
+Test whether a link exists at the specified location.
+
+=item H5Lget_name_by_idx($loc_id, $group_name, $index_type, $order, $n, $lapl_id)
+
+Return the name of the link at index C<$n>.
+
+=item H5Oexists_by_name($loc_id, $name, $lapl_id)
+
+Test whether an object exists at the supplied name.
+
+=item H5Oget_info($obj_id)
+
+Return an object-information hash reference, including the object type and
+header information.
+
+=item H5Oopen($loc_id, $name, $lapl_id)
+
+Open an object by name and return its identifier.
+
+=back
+
+=head2 Dataspace functions
+
+=over 4
+
+=item H5Sclose($space_id)
+
+Close a dataspace.
+
+=item H5Sget_simple_extent_dims($space_id)
+
+Return the dimensions of a simple dataspace.
+
+=item H5Sget_simple_extent_ndims($space_id)
+
+Return the number of dimensions in a simple dataspace.
+
+=item H5Sget_simple_extent_npoints($space_id)
+
+Return the total number of points in a simple dataspace.
+
+=back
+
+=head2 Property-list functions
+
+=over 4
+
+=item H5Pclose($plist_id)
+
+Close a property list.
+
+=item H5Pcopy($plist_id)
+
+Copy a property list and return the new identifier.
+
+=item H5Pcreate($class_id)
+
+Create a property list for C<$class_id>.
+
+=item H5Pequal($id1, $id2)
+
+Compare two property lists and return the HDF5 truth value.
+
+=item H5Pget_class($plist_id)
+
+Return the property-list class identifier.
+
+=back
+
+=head1 CONSTANTS
+
+Constants are available through the C<:constants> export tag or individually.
+They include file, iteration, index, object, datatype, dataset, group,
+identifier, dataspace, and property-list constants, including the
+C<H5T_NATIVE_*> and C<H5T_STD_*> datatype families.
+
+=head1 EXPORTS
+
+Nothing is exported by default. Use C<:functions>, C<:constants>, or C<:all>
+with C<use>, or import individual names.
 
 =head1 SEE ALSO
 
-Documentation can found at
-http://hdfgroup.org/projects/bioinformatics/bio_software.html
+L<https://www.hdfgroup.org/solutions/hdf5/>.
 
 =cut
