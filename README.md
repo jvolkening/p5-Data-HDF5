@@ -1,7 +1,9 @@
 Data::HDF5
 ==========
-[![Build Status](https://travis-ci.org/jvolkening/p5-Data-HDF5.svg?branch=master)](https://travis-ci.org/jvolkening/p5-Data-HDF5)
+[![Tests](https://github.com/jvolkening/p5-Data-HDF5/actions/workflows/tests.yml/badge.svg)](https://github.com/jvolkening/p5-Data-HDF5/actions/workflows/tests.yml)
 [![Coverage Status](https://coveralls.io/repos/github/jvolkening/p5-Data-HDF5/badge.svg?branch=master)](https://coveralls.io/github/jvolkening/p5-Data-HDF5?branch=master)
+[![CPAN version](https://badge.fury.io/pl/Data-HDF5.svg)](https://badge.fury.io/pl/Data-HDF5)
+
 
 Bindings to the HDF5 data storage library
 
