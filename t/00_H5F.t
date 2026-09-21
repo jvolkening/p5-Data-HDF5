@@ -44,10 +44,11 @@ ok( H5Fclose($file) >= 0,
 stderr_like { $ret = H5Fopen('foobar', H5F_ACC_RDONLY, H5P_DEFAULT) }
     qr/Unable to open file/im,
     "warned on opening bad filename";
-ok ($ret < 0, "opening bad filename returned negative value" );
+ok( $ret < 0, "opening bad filename returned negative value" );
 stderr_like { $ret = H5Fclose(-1) }
-    qr/Invalid arguments to routine/im,
-    "closing bad fid returned negative value";
+    qr/Not a file ID/im,
+    "warned on closing bad fid";
+ok( $ret < 0, "closing bad fid returned negative value" );
 
 #H5Fcreate
 #H5Fflush
