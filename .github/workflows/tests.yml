@@ -1,0 +1,47 @@
+name: 'Unit Tests'
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        perl-version:
+          - '5.44'
+          - '5.36'
+          - '5.16'
+        include:
+          - perl-version: '5.44'
+            os: ubuntu-latest
+            coverage: true
+
+    container:
+      image: perldocker/perl-tester:${{ matrix.perl-version }}
+
+    steps:
+      - uses: actions/checkout@main
+        with:
+            submodules: recursive
+      - run: apt-get update && apt-get install -y libhdf5-dev make
+      - run: perl -V
+      - run: cpanm --notest --installdeps --verbose .
+      - run: perl Makefile.PL
+      - run: make
+      - name: Run Tests (no coverage)
+        if: ${{ !matrix.coverage }}
+        run: prove -wlvmb t
+      - name: Run Tests (with coverage)
+        if: ${{ matrix.coverage }}
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cpanm -n Devel::Cover
+          cpanm -n Devel::Cover::Report::Coveralls
+          perl Makefile.PL && cover -gcov -ignore_re 'const-.*' -ignore_re '.*inline.h' -test -report coveralls
