@@ -390,6 +390,9 @@ Data::HDF5 - Perl wrappers for the HDF5 data storage library
 
 =head1 DESCRIPTION
 
+NOTE: These bindings should be considered to be in alpha stage. They have not
+been widely used in production and will contain bugs. Use at your own risk.
+
 Data::HDF5 provides thin Perl bindings to the HDF5 C library. The XS
 functions use HDF5 identifiers (integer handles) as arguments and return
 values. Unless noted otherwise, HDF5 status values are passed through
